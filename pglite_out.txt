@@ -1,0 +1,3 @@
+Initializing PGLite with database: ./data/pglite
+Debug level: 0
+PGlite database initialized

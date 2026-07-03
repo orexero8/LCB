@@ -1,0 +1,342 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  RECEPTIONIST
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  BLOCKED
+  MAINTENANCE
+}
+
+enum BookingStatus {
+  ACTIVE
+  CHECKED_OUT
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  TPE
+  PARTNER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum ShiftStatus {
+  ACTIVE
+  CLOSED
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String?
+  phone        String?
+  passwordHash String   @map("password_hash")
+  name         String
+  role         UserRole
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  bookings     Booking[]
+  shiftReports ShiftReport[]
+  cancellations Cancellation[]
+  loginLogs    LoginLog[]
+
+  @@map("users")
+}
+
+model Floor {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  rooms     Room[]
+
+  @@map("floors")
+}
+
+model RoomType {
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String
+  bedLayoutLabel  String   @map("bed_layout_label")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  rooms           Room[]
+
+  @@map("room_types")
+}
+
+model Room {
+  id            String     @id @default(uuid()) @db.Uuid
+  roomNumber    Int        @map("room_number")
+  name          String?
+  floorId       String     @map("floor_id") @db.Uuid
+  roomTypeId    String?    @map("room_type_id") @db.Uuid
+  bedLayout     String     @map("bed_layout")
+  pricePerNight Decimal    @map("price_per_night") @db.Decimal(10, 2)
+  photoUrl      String?    @map("photo_url")
+  notes         String?
+  status        RoomStatus @default(AVAILABLE)
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  floor         Floor      @relation(fields: [floorId], references: [id])
+  roomType      RoomType?  @relation(fields: [roomTypeId], references: [id])
+  bookingRooms  BookingRoom[]
+  checkoutAlerts CheckoutAlert[]
+
+  @@map("rooms")
+}
+
+model Partner {
+  id             String   @id @default(uuid()) @db.Uuid
+  name           String
+  logoUrl        String?  @map("logo_url")
+  contactPhone   String?  @map("contact_phone")
+  commissionRate Decimal  @default(10) @map("commission_rate") @db.Decimal(5, 2)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  bookings       Booking[]
+
+  @@map("partners")
+}
+
+model Client {
+  id         String   @id @default(uuid()) @db.Uuid
+  nom        String   @map("nom")
+  prenom     String   @map("prenom")
+  maidenName String?  @map("maiden_name")
+  dateOfBirth DateTime? @map("date_of_birth") @db.Date
+  profession String?
+  address    String?
+  nationality String?
+  email      String?
+  idDocument      String    @map("id_document")
+  idDeliveryDate  DateTime? @map("id_delivery_date") @db.Date
+  idDeliveryPlace String?   @map("id_delivery_place")
+  idAuthority     String?   @map("id_authority")
+  phone           String
+  wilaya          String
+  gender     Gender
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  bookingGuests BookingGuest[]
+
+  @@map("clients")
+}
+
+model Booking {
+  id            String        @id @default(uuid()) @db.Uuid
+  bookingRef    String        @unique @map("booking_ref")
+  checkIn       DateTime      @map("check_in") @db.Date
+  checkOut      DateTime      @map("check_out") @db.Date
+  discountCode  String?       @map("discount_code")
+  discountAmount Decimal       @default(0) @map("discount_amount") @db.Decimal(10, 2)
+  notes         String?
+  childrenCharge Decimal       @default(0) @map("children_charge") @db.Decimal(10, 2)
+  totalAmount   Decimal       @map("total_amount") @db.Decimal(10, 2)
+  paymentMethod PaymentMethod @map("payment_method")
+  partnerId     String?       @map("partner_id") @db.Uuid
+  status        BookingStatus @default(ACTIVE)
+  isMarried     Boolean       @default(false) @map("is_married")
+  isGroup       Boolean       @default(false) @map("is_group")
+  acte          String?
+  receptionistId String       @map("receptionist_id") @db.Uuid
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  partner       Partner?      @relation(fields: [partnerId], references: [id])
+  receptionist  User          @relation(fields: [receptionistId], references: [id])
+  bookingRooms  BookingRoom[]
+  bookingGuests BookingGuest[]
+  childrenAges  ChildAge[]
+  cancellation  Cancellation?
+  checkoutAlert CheckoutAlert?
+
+  @@map("bookings")
+}
+
+model BookingRoom {
+  id             String   @id @default(uuid()) @db.Uuid
+  bookingId      String   @map("booking_id") @db.Uuid
+  roomId         String   @map("room_id") @db.Uuid
+  priceAtBooking Decimal  @map("price_at_booking") @db.Decimal(10, 2)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  room           Room     @relation(fields: [roomId], references: [id])
+
+  @@map("booking_rooms")
+}
+
+model BookingGuest {
+  id        String   @id @default(uuid()) @db.Uuid
+  bookingId String   @map("booking_id") @db.Uuid
+  clientId  String   @map("client_id") @db.Uuid
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  client    Client   @relation(fields: [clientId], references: [id])
+
+  @@map("booking_guests")
+}
+
+model ChildAge {
+  id              String    @id @default(uuid()) @db.Uuid
+  bookingId       String    @map("booking_id") @db.Uuid
+  nom             String    @map("nom")
+  prenom          String    @map("prenom")
+  age             Int
+  dateOfBirth     DateTime? @map("date_of_birth") @db.Date
+  wilaya          String?   @map("wilaya")
+  idDocument      String?   @map("id_document")
+  idDeliveryDate  DateTime? @map("id_delivery_date") @db.Date
+  idDeliveryPlace String?   @map("id_delivery_place")
+  idAuthority     String?   @map("id_authority")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  booking         Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("children_ages")
+}
+
+model Cancellation {
+  id             String   @id @default(uuid()) @db.Uuid
+  bookingId      String   @unique @map("booking_id") @db.Uuid
+  reasonCategory String   @map("reason_category")
+  reasonText     String   @map("reason_text")
+  cancelledBy    String   @map("cancelled_by") @db.Uuid
+  calledBack     Boolean  @default(false) @map("called_back")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  cancelledByUser User    @relation(fields: [cancelledBy], references: [id])
+
+  @@map("cancellations")
+}
+
+model CheckoutAlert {
+  id            String   @id @default(uuid()) @db.Uuid
+  bookingId     String   @unique @map("booking_id") @db.Uuid
+  roomId        String   @map("room_id") @db.Uuid
+  checkedOutAt  DateTime @map("checked_out_at")
+  ready         Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  room          Room     @relation(fields: [roomId], references: [id])
+
+  @@map("checkout_alerts")
+}
+
+model Expense {
+  id            String   @id @default(uuid()) @db.Uuid
+  shiftReportId String   @map("shift_report_id") @db.Uuid
+  amount        Decimal  @db.Decimal(10, 2)
+  category      String
+  description   String
+  photoUrl      String?  @map("photo_url")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  shiftReport   ShiftReport @relation(fields: [shiftReportId], references: [id])
+
+  @@map("expenses")
+}
+
+model ShiftReport {
+  id               String      @id @default(uuid()) @db.Uuid
+  userId           String      @map("user_id") @db.Uuid
+  startedAt        DateTime    @map("started_at")
+  endedAt          DateTime?   @map("ended_at")
+  startingCash     Decimal     @map("starting_cash") @db.Decimal(10, 2)
+  endingCash       Decimal?    @map("ending_cash") @db.Decimal(10, 2)
+  expectedCash     Decimal?    @map("expected_cash") @db.Decimal(10, 2)
+  cashDifference   Decimal?    @map("cash_difference") @db.Decimal(10, 2)
+  cashCollected    Decimal     @default(0) @map("cash_collected") @db.Decimal(10, 2)
+  tpeCollected     Decimal     @default(0) @map("tpe_collected") @db.Decimal(10, 2)
+  partnerCollected Decimal     @default(0) @map("partner_collected") @db.Decimal(10, 2)
+  declaredCash     Decimal     @default(0) @map("declared_cash") @db.Decimal(10, 2)
+  declaredTpe      Decimal     @default(0) @map("declared_tpe") @db.Decimal(10, 2)
+  declaredPartner  Decimal     @default(0) @map("declared_partner") @db.Decimal(10, 2)
+  status           ShiftStatus @default(ACTIVE)
+  createdAt        DateTime    @default(now()) @map("created_at")
+
+  user             User        @relation(fields: [userId], references: [id])
+  expenses         Expense[]
+
+  @@map("shift_reports")
+}
+
+model LoginLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  email     String
+  ip        String?
+  userAgent String?  @map("user_agent")
+  success   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("login_logs")
+}
+
+model Discount {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique
+  type        String   @default("FIXED") // FIXED or PERCENTAGE
+  value       Decimal  @db.Decimal(10, 2)
+  minAmount   Decimal  @default(0) @map("min_amount") @db.Decimal(10, 2)
+  validFrom   DateTime @map("valid_from") @db.Date
+  validUntil  DateTime @map("valid_until") @db.Date
+  maxUses     Int      @default(0) @map("max_uses") // 0 = unlimited
+  usedCount   Int      @default(0) @map("used_count")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("discounts")
+}
+
+model HotelSetting {
+  id                 String   @id @default("default")
+  hotelName          String   @default("MRGLA Hotel") @map("hotel_name")
+  hotelAddress       String?  @map("hotel_address")
+  hotelPhone         String?  @map("hotel_phone")
+  hotelWhatsApp      String?  @map("hotel_whatsapp")
+  hotelEmail         String?  @map("hotel_email")
+  logoUrl            String?  @map("logo_url")
+  checkInTime        String   @default("14:00") @map("check_in_time")
+  checkOutTime       String   @default("12:00") @map("check_out_time")
+  cancellationPolicy String?  @map("cancellation_policy")
+  footerMessage      String?  @map("footer_message")
+  currencySymbol     String   @default("DA") @map("currency_symbol")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("hotel_settings")
+}

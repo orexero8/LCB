@@ -1,0 +1,44 @@
+services:
+  # ============================================================
+  # PGlite — PostgreSQL-compatible in-process database server
+  # ============================================================
+  pglite:
+    build:
+      context: ./pglite
+      dockerfile: Dockerfile
+    container_name: mrgla-pglite
+    ports:
+      - "51214:51214"
+    volumes:
+      - pglite-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 51214 -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # ============================================================
+  # App — Next.js hotel management application
+  # ============================================================
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: mrgla-app
+    ports:
+      - "3000:3000"
+    environment:
+      - PGLITE_HOST=pglite
+      - PGLITE_PORT=51214
+      - DATABASE_URL=postgresql://postgres:postgres@pglite:51214/postgres
+      - JWT_SECRET=mrgla-jwt-secret-change-in-production
+      - NODE_ENV=production
+    depends_on:
+      pglite:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pglite-data:

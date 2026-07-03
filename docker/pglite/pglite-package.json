@@ -1,0 +1,7 @@
+{
+  "name": "mrgla-pglite",
+  "private": true,
+  "dependencies": {
+    "@electric-sql/pglite-socket": "^0.2.0"
+  }
+}
