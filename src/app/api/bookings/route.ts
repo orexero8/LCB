@@ -150,16 +150,7 @@ export async function POST(request: Request) {
     const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
     const totalBeforeDiscount = rooms.reduce((sum, r) => sum + Number(r.pricePerNight) * nights, 0);
 
-    let childrenCharge = 0;
-    if (childrenAges?.length) {
-      const basePrice = Number(rooms[0]?.pricePerNight || 0);
-      childrenCharge = childrenAges.reduce((sum: number, child: any) => {
-        const age = typeof child === "number" ? child : child.age;
-        if (age < 3) return sum;
-        if (age <= 12) return sum + basePrice * 0.5 * nights;
-        return sum + basePrice * nights;
-      }, 0);
-    }
+    const childrenCharge = 0;
 
     let discount = parseFloat(discountAmount || 0);
 
@@ -187,7 +178,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const totalAmount = Math.max(0, totalBeforeDiscount + childrenCharge - discount);
+    const totalAmount = Math.max(0, totalBeforeDiscount - discount);
 
     const bookingRef = generateBookingRef();
 

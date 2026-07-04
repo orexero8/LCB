@@ -315,14 +315,9 @@ export function DetailPanel({
                 <div style={{ borderTop: "1px solid #CBD5E1", marginTop: 8, paddingTop: 8 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 2 }}>
                     <span style={{ color: "#94A3B8" }}>Sous-total</span>
-                    <span>{(Number(voucherData.totalAmount) + Number(voucherData.discountAmount) - (Number(voucherData.childrenCharge) || 0)).toLocaleString()} DA</span>
+                    <span>{(Number(voucherData.totalAmount) + Number(voucherData.discountAmount)).toLocaleString()} DA</span>
                   </div>
-                  {(Number(voucherData.childrenCharge) || 0) > 0 && (
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#d00" }}>
-                      <span>Suppl. enfants</span>
-                      <span>+{Number(voucherData.childrenCharge).toLocaleString()} DA</span>
-                    </div>
-                  )}
+
                   {Number(voucherData.discountAmount) > 0 && (
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#d00", marginBottom: 2 }}>
                       <span>Remise{voucherData.discountCode ? ` (${voucherData.discountCode})` : ""}</span>
@@ -350,47 +345,7 @@ export function DetailPanel({
         </>
       )}
 
-      {voucherData && (
-        <div className="print-receipt">
-          <div style={{ textAlign: "center", marginBottom: "3mm" }}>
-            {voucherData.hotel?.logoUrl && (
-              <img src={voucherData.hotel.logoUrl} alt="Logo" style={{ width: "14mm", height: "14mm", objectFit: "contain", marginBottom: "0.5mm" }} />
-            )}
-            <div style={{ fontSize: "14pt", fontWeight: 700 }}>{voucherData.hotel?.name || "Le Cheval Blanc"}</div>
-            <div style={{ fontSize: "7pt", color: "#666", marginTop: "0.5mm" }}>Reçu de réservation</div>
-          </div>
-          <hr />
-          <table style={{ width: "100%", fontSize: "8pt", borderCollapse: "collapse" }}>
-            <tbody>
-              <tr><td style={{ color: "#666", width: "22mm", padding: "0.5mm 0" }}>Réf. Réservation</td><td style={{ fontWeight: 600 }}>{voucherData.bookingRef}</td></tr>
-              <tr><td style={{ color: "#666", padding: "0.5mm 0" }}>Client</td><td>{voucherData.guestName}</td></tr>
-              <tr><td style={{ color: "#666", padding: "0.5mm 0" }}>Chambre(s)</td><td>{voucherData.rooms?.map((r: any) => String(r.roomNumber).padStart(2, "0")).join(", ")}</td></tr>
-              <tr><td style={{ color: "#666", padding: "0.5mm 0" }}>Arrivée</td><td>{voucherData.checkIn}</td></tr>
-              <tr><td style={{ color: "#666", padding: "0.5mm 0" }}>Départ</td><td>{voucherData.checkOut}</td></tr>
-            </tbody>
-          </table>
-          <hr />
-          <table style={{ width: "100%", fontSize: "8pt", borderCollapse: "collapse" }}>
-            <tbody>
-              <tr><td style={{ color: "#666", width: "22mm", padding: "0.5mm 0" }}>Sous-total</td><td style={{ textAlign: "right" }}>{(Number(voucherData.totalAmount) + Number(voucherData.discountAmount) - (Number(voucherData.childrenCharge) || 0)).toLocaleString()} DA</td></tr>
-              {(Number(voucherData.childrenCharge) || 0) > 0 && (
-                <tr><td style={{ color: "#d00", width: "22mm", padding: "0.5mm 0" }}>Suppl. enfants</td><td style={{ textAlign: "right", color: "#d00" }}>+{Number(voucherData.childrenCharge).toLocaleString()} DA</td></tr>
-              )}
-              {Number(voucherData.discountAmount) > 0 && (
-                <tr><td style={{ color: "#d00", width: "22mm", padding: "0.5mm 0" }}>Remise{voucherData.discountCode ? ` (${voucherData.discountCode})` : ""}</td><td style={{ textAlign: "right", color: "#d00" }}>-{Number(voucherData.discountAmount).toLocaleString()} DA</td></tr>
-              )}
-              <tr><td style={{ fontWeight: 700, fontSize: "10pt", borderTop: "1px solid #333", paddingTop: "1mm" }}>Total</td><td style={{ fontWeight: 700, fontSize: "10pt", textAlign: "right", borderTop: "1px solid #333", paddingTop: "1mm" }}>{Number(voucherData.totalAmount).toLocaleString()} DA</td></tr>
-            </tbody>
-          </table>
-          <hr />
-          <div style={{ textAlign: "center", fontSize: "6.5pt", color: "#999", marginTop: "2mm" }}>
-            Ce reçu sert de confirmation de réservation.
-          </div>
-          <div style={{ textAlign: "center", fontSize: "6.5pt", color: "#999", marginTop: "0.5mm" }}>
-            Imprimé le {new Date().toLocaleDateString("fr-FR")}
-          </div>
-        </div>
-      )}
+
     </>
   );
 }

@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Check, ChevronLeft, Minus, Plus, BedSingle, BedDouble, Banknote, CreditCard, Handshake } from "lucide-react";
+import { WILAYAS } from "@/lib/wilayas";
+import { NATIONALITES } from "@/lib/nationalites";
 
 interface RoomData {
   id: string;
@@ -195,7 +197,7 @@ function WizardContent() {
     clientDateOfBirth: "",
     clientProfession: "",
     clientAddress: "",
-    clientNationality: "",
+    clientNationality: "Algérienne",
     clientEmail: "",
     clientPhone: "",
     clientIdDocument: "",
@@ -338,7 +340,7 @@ function WizardContent() {
       clientDateOfBirth: client.dateOfBirth || "",
       clientProfession: client.profession || "",
       clientAddress: client.address || "",
-      clientNationality: client.nationality || "",
+      clientNationality: client.nationality || "Algérienne",
       clientEmail: client.email || "",
       clientPhone: client.phone,
       clientIdDocument: client.idDocument,
@@ -492,7 +494,7 @@ function WizardContent() {
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
             {Array.from({ length: s.numChildren }).map((_, i) => (
               <div key={i} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end", padding: "8px 12px", background: "#F8FAFC", borderRadius: 10, border: "1px solid #E2E8F0" }}>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 2, minWidth: 120 }}>
                   <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Nom Enfant {i + 1}</Label>
                   <Input value={s.childrenAges[i]?.nom || ""}
                     onChange={(e) => {
@@ -500,9 +502,9 @@ function WizardContent() {
                       ages[i] = { ...ages[i], nom: e.target.value };
                       update({ childrenAges: ages });
                     }}
-                    className="h-10 text-sm" placeholder="Nom" />
+                    className="h-10 text-sm w-full" placeholder="Nom" />
                 </div>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 2, minWidth: 120 }}>
                   <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Prénom Enfant {i + 1}</Label>
                   <Input value={s.childrenAges[i]?.prenom || ""}
                     onChange={(e) => {
@@ -510,7 +512,7 @@ function WizardContent() {
                       ages[i] = { ...ages[i], prenom: e.target.value };
                       update({ childrenAges: ages });
                     }}
-                    className="h-10 text-sm" placeholder="Prénom" />
+                    className="h-10 text-sm w-full" placeholder="Prénom" />
                 </div>
                 <div>
                   <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Date de naissance</Label>
@@ -524,13 +526,14 @@ function WizardContent() {
                 </div>
                 <div>
                   <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Wilaya</Label>
-                  <Input value={s.childrenAges[i]?.wilaya || ""}
+                  <input list={`wilayas-child-${i}`} value={s.childrenAges[i]?.wilaya || ""}
                     onChange={(e) => {
                       const ages = [...s.childrenAges];
                       ages[i] = { ...ages[i], wilaya: e.target.value };
                       update({ childrenAges: ages });
                     }}
-                    className="h-10 text-sm" placeholder="Oran" />
+                    className="h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+                  <datalist id={`wilayas-child-${i}`}>{WILAYAS.map((w) => <option key={w} value={w} />)}</datalist>
                 </div>
                 <div>
                   <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Âge</Label>
@@ -733,7 +736,10 @@ function WizardContent() {
           </div>
           <div>
             <Label style={{ display: "block", fontSize: 14, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>Nationalité</Label>
-            <Input value={s.clientNationality} onChange={(e) => update({ clientNationality: e.target.value })} className="h-12 text-base" />
+            <select value={s.clientNationality} onChange={(e) => update({ clientNationality: e.target.value })}
+              className="h-12 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+              {NATIONALITES.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
           </div>
           <div>
             <Label style={{ display: "block", fontSize: 14, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>Email</Label>
@@ -749,7 +755,9 @@ function WizardContent() {
           </div>
           <div>
             <Label style={{ display: "block", fontSize: 14, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>Wilaya</Label>
-            <Input value={s.clientWilaya} onChange={(e) => update({ clientWilaya: e.target.value })} className="h-12 text-base" />
+            <input list="wilayas-client" value={s.clientWilaya} onChange={(e) => update({ clientWilaya: e.target.value })}
+              className="h-12 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+            <datalist id="wilayas-client">{WILAYAS.map((w) => <option key={w} value={w} />)}</datalist>
           </div>
           <div>
             <Label style={{ display: "block", fontSize: 14, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>Délivré le</Label>
@@ -828,11 +836,15 @@ function WizardContent() {
                   </div>
                   <div>
                     <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Nationalité</Label>
-                    <Input value={g.nationality || ""} onChange={(e) => {
+                    <select value={g.nationality || ""} onChange={(e) => {
                       const guests = [...s.additionalGuests];
                       guests[i] = { ...guests[i], nationality: e.target.value };
                       update({ additionalGuests: guests });
-                    }} className="h-9 text-sm" />
+                    }}
+                      className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+                      <option value="">---</option>
+                      {NATIONALITES.map((n) => <option key={n} value={n}>{n}</option>)}
+                    </select>
                   </div>
                   <div>
                     <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Email</Label>
@@ -884,11 +896,13 @@ function WizardContent() {
                   </div>
                   <div>
                     <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Wilaya</Label>
-                    <Input value={g.wilaya || ""} onChange={(e) => {
+                    <input list={`wilayas-guest-${i}`} value={g.wilaya || ""} onChange={(e) => {
                       const guests = [...s.additionalGuests];
                       guests[i] = { ...guests[i], wilaya: e.target.value };
                       update({ additionalGuests: guests });
-                    }} className="h-9 text-sm" />
+                    }}
+                      className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50" />
+                    <datalist id={`wilayas-guest-${i}`}>{WILAYAS.map((w) => <option key={w} value={w} />)}</datalist>
                   </div>
                   <div>
                     <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Genre</Label>

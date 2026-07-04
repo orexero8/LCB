@@ -14,7 +14,6 @@ interface VoucherData {
     priceAtBooking: number;
   }>;
   childrenCharge: number;
-  childrenAges: number[];
   totalAmount: number;
   discountAmount: number;
   discountCode: string | null;
@@ -53,7 +52,7 @@ const styles = StyleSheet.create({
 export function VoucherPdf({ data }: { data: VoucherData }) {
   return (
     <Document>
-      <Page size="A5" style={styles.page}>
+      <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           {data.hotel?.logoUrl && (
             <Image src={data.hotel.logoUrl} style={{ width: 60, height: 60, marginBottom: 4, alignSelf: "center" }} />
@@ -80,14 +79,8 @@ export function VoucherPdf({ data }: { data: VoucherData }) {
         <View style={{ marginTop: 16, borderTopWidth: 0.5, borderTopColor: "#ccc", paddingTop: 8 }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 3 }}>
             <Text style={{ fontSize: 8, color: "#666" }}>Sous-total</Text>
-            <Text style={{ fontSize: 8 }}>{(data.totalAmount + data.discountAmount - (data.childrenCharge || 0)).toLocaleString()} {data.hotel?.currencySymbol || "DA"}</Text>
+            <Text style={{ fontSize: 8 }}>{(data.totalAmount + data.discountAmount).toLocaleString()} {data.hotel?.currencySymbol || "DA"}</Text>
           </View>
-          {(data.childrenCharge || 0) > 0 && (
-            <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 3 }}>
-              <Text style={{ fontSize: 7, color: "#666" }}>Suppl. enfants</Text>
-              <Text style={{ fontSize: 7, color: "#d00" }}>+{Number(data.childrenCharge).toLocaleString()} {data.hotel?.currencySymbol || "DA"}</Text>
-            </View>
-          )}
           {data.discountAmount > 0 && (
             <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 3 }}>
               <Text style={{ fontSize: 7, color: "#666" }}>Remise{data.discountCode ? ` (${data.discountCode})` : ""}</Text>

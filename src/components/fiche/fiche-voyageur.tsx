@@ -35,11 +35,11 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
 
   return (
     <div style={{
-      width: "210mm", minHeight: "148mm", padding: "5mm 7mm",
+      width: "297mm", minHeight: "210mm", padding: "8mm 10mm",
       fontFamily: "Arial, sans-serif", color: "#000", background: "#fff",
-      position: "relative", fontSize: "7pt",
+      position: "relative", fontSize: "9pt",
     }}>
-      <div style={{ position: "absolute", left: "50%", top: 0, height: "100%", borderLeft: "1px dashed #ddd" }} />
+      <div style={{ position: "absolute", left: "50%", top: 0, height: "100%", borderLeft: "1px dashed #bbb" }} />
 
       <div style={{ display: "flex", height: "100%" }}>
         {/* Left half */}
@@ -202,7 +202,7 @@ function Field({ label, ar, sub, value }: { label: string; ar: string; sub?: str
 }
 
 const printStyles = `
-  @page { size: A5 landscape; margin: 0; }
+  @page { size: A4 landscape; margin: 0; }
   @media print { body { -webkit-print-color-adjust: exact; } }
 `;
 

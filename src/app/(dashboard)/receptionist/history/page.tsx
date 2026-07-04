@@ -179,7 +179,7 @@ export default function HistoryPage() {
     document.body.appendChild(iframe);
     const doc = iframe.contentWindow!.document;
     doc.open();
-    doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page{size:A5 landscape;margin:0}@media print{body{-webkit-print-color-adjust:exact}}body{margin:0;padding:0;font-family:Arial,sans-serif}</style></head><body></body></html>');
+    doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page{size:A4 landscape;margin:0}@media print{body{-webkit-print-color-adjust:exact}}body{margin:0;padding:0;font-family:Arial,sans-serif}</style></head><body></body></html>');
     doc.close();
     const root = createRoot(doc.body);
     root.render(<FicheVoyageur data={data} />);
