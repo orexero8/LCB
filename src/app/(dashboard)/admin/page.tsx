@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { toast } from "sonner";
+import { RotateCcw, X, AlertTriangle } from "lucide-react";
 
 interface AlertData {
   pendingCheckouts: { id: string; roomNumber: number; checkedOutAt: string; bookingRef: string }[];
@@ -43,6 +45,8 @@ export default function AdminDashboard() {
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [data, setData] = useState<AlertData | null>(null);
   const [kpis, setKpis] = useState<KpiData | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -182,6 +186,60 @@ export default function AdminDashboard() {
             </div>
           </div>
         </>
+      )}
+
+      {/* Reset section */}
+      <div style={{ background: "#FEF2F2", border: "2px solid #FECACA", borderRadius: 12, padding: 20, marginBottom: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <AlertTriangle size={18} color="#DC2626" />
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#991B1B", margin: 0 }}>Réinitialisation du système</h3>
+        </div>
+        <p style={{ fontSize: 13, color: "#B91C1C", marginBottom: 12 }}>
+          Remet toutes les chambres à "Libre", ferme les caisses actives, et supprime les pré-réservations.
+          Cette action est irréversible.
+        </p>
+        <button onClick={() => setShowResetConfirm(true)} disabled={resetting}
+          style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: "#DC2626", color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+          <RotateCcw size={16} /> {resetting ? "Réinitialisation..." : "Réinitialiser"}
+        </button>
+      </div>
+
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center" style={{ background: "rgba(15,23,42,0.5)" }}>
+          <div style={{ background: "white", borderRadius: 16, padding: 28, width: 400, boxShadow: "0 32px 64px rgba(0,0,0,0.2)" }}>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: "#991B1B", marginBottom: 8 }}>Confirmer la réinitialisation</h3>
+            <p style={{ fontSize: 14, color: "#64748B", marginBottom: 16 }}>
+              Toutes les chambres seront marquées disponibles. Les caisses actives seront fermées avec un solde à zéro. Les pré-réservations seront supprimées.
+            </p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#DC2626", marginBottom: 16 }}>
+              Cette action est irréversible.
+            </p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => setShowResetConfirm(false)}
+                style={{ padding: "10px 20px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", fontSize: 14, fontWeight: 600, color: "#64748B", cursor: "pointer" }}>
+                Annuler
+              </button>
+              <button onClick={async () => {
+                setResetting(true);
+                try {
+                  const token = localStorage.getItem("token");
+                  const res = await fetch("/api/admin/reset", {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` },
+                  });
+                  if (!res.ok) throw new Error("Erreur");
+                  toast.success("Système réinitialisé");
+                  setShowResetConfirm(false);
+                  window.location.reload();
+                } catch { toast.error("Erreur lors de la réinitialisation"); }
+                finally { setResetting(false); }
+              }} disabled={resetting}
+                style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: "#DC2626", color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                <RotateCcw size={16} /> {resetting ? "..." : "Confirmer la réinitialisation"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">

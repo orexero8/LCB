@@ -64,8 +64,6 @@ export function DetailPanel({
 }) {
   const router = useRouter();
   const [showCheckoutConfirm, setShowCheckoutConfirm] = useState(false);
-  const [showVoucher, setShowVoucher] = useState(false);
-  const [voucherData, setVoucherData] = useState<any>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelText, setCancelText] = useState("");
@@ -110,12 +108,12 @@ export function DetailPanel({
     if (!room.currentBooking) return;
     setIsProcessing(true); setError(null);
     try {
-      const res = await fetch(`/api/bookings/${room.currentBooking.bookingId}/voucher`, {
+      const res = await fetch(`/api/bookings/${room.currentBooking.bookingId}/voucher/pdf`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Erreur");
-      const data = await res.json();
-      setVoucherData(data.voucher); setShowVoucher(true);
+      const blob = await res.blob();
+      window.open(URL.createObjectURL(blob), "_blank");
     } catch (e: any) { setError(e.message); }
     finally { setIsProcessing(false); }
   }
@@ -358,69 +356,6 @@ export function DetailPanel({
           </div>
         </div>
       )}
-
-      {showVoucher && voucherData && (
-        <>
-          <div className="fixed inset-0 bg-black/30 z-[60]" onClick={() => { setShowVoucher(false); setVoucherData(null); }} />
-          <div className="fixed inset-0 flex items-center justify-center z-[70] pointer-events-none">
-            <div style={{ background: "white", borderRadius: 16, padding: 24, width: 400, pointerEvents: "auto", maxHeight: "90vh", overflow: "auto", boxShadow: "0 32px 64px rgba(0,0,0,0.2)" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: "#1E293B" }}>Reçu</h3>
-                <button onClick={() => { setShowVoucher(false); setVoucherData(null); }}
-                  style={{ width: 32, height: 32, borderRadius: 8, background: "#F1F5F9", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <X size={16} color="#64748B" />
-                </button>
-              </div>
-              <div style={{ border: "2px dashed #CBD5E1", borderRadius: 12, padding: 16, fontSize: 13 }}>
-                <div style={{ textAlign: "center", marginBottom: 12 }}>
-                  {voucherData.hotel?.logoUrl && (
-                    <img src={voucherData.hotel.logoUrl} alt="Logo" style={{ width: 100, height: 100, objectFit: "contain", marginBottom: 4 }} />
-                  )}
-                  <p style={{ fontSize: 18, fontWeight: 700, color: "#1E293B" }}>{voucherData.hotel?.name || "Le Cheval Blanc"}</p>
-                  <p style={{ fontSize: 11, color: "#94A3B8" }}>Reçu de réservation</p>
-                </div>
-                {[
-                  ["Réf. Réservation", voucherData.bookingRef], ["Client", voucherData.guestName],
-                  ["Chambre(s)", voucherData.rooms?.map((r: any) => String(r.roomNumber).padStart(2, "0")).join(", ")],
-                  ["Arrivée", voucherData.checkIn], ["Départ", voucherData.checkOut],
-                ].map(([label, value]) => (
-                  <div key={String(label)} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid #F1F5F9" }}>
-                    <span style={{ color: "#94A3B8" }}>{String(label)}</span><span style={{ fontWeight: 600, color: "#1E293B" }}>{String(value)}</span>
-                  </div>
-                ))}
-                <div style={{ borderTop: "1px solid #CBD5E1", marginTop: 8, paddingTop: 8 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 2 }}>
-                    <span style={{ color: "#94A3B8" }}>Sous-total</span>
-                    <span>{(Number(voucherData.totalAmount) + Number(voucherData.discountAmount)).toLocaleString()} DA</span>
-                  </div>
-
-                  {Number(voucherData.discountAmount) > 0 && (
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#d00", marginBottom: 2 }}>
-                      <span>Remise{voucherData.discountCode ? ` (${voucherData.discountCode})` : ""}</span>
-                      <span>-{Number(voucherData.discountAmount).toLocaleString()} DA</span>
-                    </div>
-                  )}
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 15, fontWeight: 800, borderTop: "1px solid #CBD5E1", paddingTop: 4, marginTop: 4 }}>
-                    <span>Total</span>
-                    <span>{Number(voucherData.totalAmount).toLocaleString()} DA</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
-                <button onClick={() => { setShowVoucher(false); setVoucherData(null); }}
-                  style={{ padding: "10px 20px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", fontSize: 14, fontWeight: 600, color: "#64748B", cursor: "pointer" }}>
-                  Fermer
-                </button>
-                <button onClick={() => window.print()}
-                  style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: "#2563EB", fontSize: 14, fontWeight: 700, color: "white", cursor: "pointer" }}>
-                  Imprimer
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
 
     </>
   );
