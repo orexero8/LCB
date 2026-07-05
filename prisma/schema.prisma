@@ -174,8 +174,9 @@ model Booking {
   bookingRooms  BookingRoom[]
   bookingGuests BookingGuest[]
   childrenAges  ChildAge[]
-  cancellation  Cancellation?
-  checkoutAlert CheckoutAlert?
+  preReservation PreReservation?
+  cancellation   Cancellation?
+  checkoutAlert  CheckoutAlert?
 
   @@map("bookings")
 }
@@ -227,15 +228,19 @@ model ChildAge {
 
 model PreReservation {
   id        String   @id @default(cuid())
-  guestName String   @map("guest_name")
+  nom       String
+  prenom    String
   phone     String
   roomId    String   @map("room_id") @db.Uuid
   checkIn   DateTime @map("check_in")
   checkOut  DateTime @map("check_out")
   notes     String?
   createdAt DateTime @default(now()) @map("created_at")
+  converted Boolean  @default(false)
+  bookingId String?  @unique @map("booking_id") @db.Uuid
 
-  room Room @relation(fields: [roomId], references: [id])
+  room    Room     @relation(fields: [roomId], references: [id])
+  booking Booking? @relation(fields: [bookingId], references: [id])
 
   @@map("pre_reservations")
 }

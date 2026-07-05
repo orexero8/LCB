@@ -277,12 +277,9 @@ function WizardContent() {
         if (!data) return;
         const pr = data.preReservations?.find((p: any) => p.id === preReservationId);
         if (!pr) return;
-        const nameParts = pr.guestName.split(" ");
-        const prenom = nameParts.pop() || "";
-        const nom = nameParts.join(" ");
         update({
-          clientNom: nom,
-          clientPrenom: prenom,
+          clientNom: pr.nom,
+          clientPrenom: pr.prenom,
           clientPhone: pr.phone,
           checkIn: pr.checkIn,
           checkOut: pr.checkOut,
@@ -445,6 +442,7 @@ function WizardContent() {
         notes: s.notes || undefined,
         paymentMethod: s.paymentMethod,
         partnerId: s.paymentMethod === "PARTNER" ? s.partnerId || undefined : undefined,
+        preReservationId: preReservationId || undefined,
       };
 
       const res = await fetch("/api/bookings", {
@@ -470,7 +468,8 @@ function WizardContent() {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          guestName: `${s.clientNom} ${s.clientPrenom}`,
+          nom: s.clientNom,
+          prenom: s.clientPrenom,
           phone: s.clientPhone,
           roomId: s.selectedRoomIds[0],
           checkIn: s.checkIn,

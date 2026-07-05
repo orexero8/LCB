@@ -47,6 +47,7 @@ export async function GET(request: Request) {
         bookingGuests: { include: { client: true }, where: { isPrimary: true }, take: 1 },
         receptionist: { select: { name: true } },
         partner: { select: { name: true } },
+        preReservation: { select: { id: true } },
       },
       orderBy: { createdAt: "desc" },
       skip,
@@ -73,6 +74,7 @@ export async function GET(request: Request) {
       paymentMethod: b.paymentMethod,
       receptionist: b.receptionist.name,
       partner: b.partner?.name || null,
+      fromPreReservation: !!b.preReservation,
       createdAt: b.createdAt.toISOString(),
     };
   });
@@ -107,6 +109,7 @@ export async function POST(request: Request) {
       notes,
       paymentMethod,
       partnerId,
+      preReservationId,
     } = body;
 
     if (!roomIds?.length || !checkIn || !checkOut || !client?.nom || !client?.prenom) {
@@ -317,6 +320,13 @@ export async function POST(request: Request) {
       where: { id: { in: roomIds } },
       data: { status: "RESERVED" },
     });
+
+    if (preReservationId) {
+      await prisma.preReservation.updateMany({
+        where: { id: preReservationId },
+        data: { converted: true, bookingId: booking.id },
+      });
+    }
 
     return Response.json({ booking }, { status: 201 });
   } catch (error) {

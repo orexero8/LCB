@@ -19,6 +19,7 @@ interface BookingRow {
   nights: number;
   totalAmount: number;
   status: string;
+  fromPreReservation: boolean;
   createdAt: string;
 }
 
@@ -67,6 +68,7 @@ interface BookingDetail {
   paymentMethod: string;
   notes: string | null;
   createdAt: string;
+  fromPreReservation: boolean;
   primaryGuest: GuestEntry | null;
   allGuests: GuestEntry[];
   children: ChildEntry[];
@@ -360,6 +362,11 @@ export default function HistoryPage() {
                   <td style={{ padding: "12px 10px", fontSize: 13, fontWeight: 600, color: "#1E293B" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <User size={14} color="#64748B" /> {b.guestName}
+                      {b.fromPreReservation && (
+                        <span style={{ fontSize: 9, fontWeight: 700, color: "#92400E", background: "#FEF3C7", padding: "1px 6px", borderRadius: 4, whiteSpace: "nowrap" }}>
+                          Pré-rés.
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td style={{ padding: "12px 10px", fontSize: 12, color: "#64748B" }}>{b.guestPhone}</td>
@@ -406,6 +413,11 @@ export default function HistoryPage() {
               <div>
                 <h2 style={{ fontSize: 20, fontWeight: 800, color: "#1E293B", margin: 0 }}>
                   Réservation {selectedBooking.bookingRef}
+                  {selectedBooking.fromPreReservation && (
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#92400E", background: "#FEF3C7", padding: "2px 8px", borderRadius: 4, marginLeft: 8, verticalAlign: "middle" }}>
+                      Pré-réservation
+                    </span>
+                  )}
                 </h2>
                 <p style={{ fontSize: 13, color: "#64748B", margin: "4px 0 0" }}>
                   {new Date(selectedBooking.createdAt).toLocaleString("fr-DZ")}

@@ -7,6 +7,7 @@ export async function GET(request: Request) {
 
   try {
     const preReservations = await prisma.preReservation.findMany({
+      where: { converted: false, bookingId: null },
       include: {
         room: { select: { roomNumber: true } },
       },
@@ -15,7 +16,8 @@ export async function GET(request: Request) {
 
     const data = preReservations.map((pr) => ({
       id: pr.id,
-      guestName: pr.guestName,
+      nom: pr.nom,
+      prenom: pr.prenom,
       phone: pr.phone,
       roomId: pr.roomId,
       roomNumber: pr.room.roomNumber,
@@ -38,10 +40,10 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { guestName, phone, roomId, checkIn, checkOut, notes } = body;
+    const { nom, prenom, phone, roomId, checkIn, checkOut, notes } = body;
 
-    if (!guestName || !phone || !roomId || !checkIn || !checkOut) {
-      return Response.json({ error: "Missing required fields: guestName, phone, roomId, checkIn, checkOut" }, { status: 400 });
+    if (!nom || !prenom || !phone || !roomId || !checkIn || !checkOut) {
+      return Response.json({ error: "Missing required fields: nom, prenom, phone, roomId, checkIn, checkOut" }, { status: 400 });
     }
 
     const room = await prisma.room.findUnique({ where: { id: roomId } });
@@ -51,7 +53,8 @@ export async function POST(request: Request) {
 
     const preReservation = await prisma.preReservation.create({
       data: {
-        guestName,
+        nom,
+        prenom,
         phone,
         roomId,
         checkIn: new Date(checkIn),
@@ -63,6 +66,30 @@ export async function POST(request: Request) {
     return Response.json({ preReservation }, { status: 201 });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Failed to create pre-reservation";
+    return Response.json({ error: msg }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  const auth = requireAnyUser(request);
+  if (!auth.authorized) return auth.response;
+
+  try {
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+    if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
+
+    const body = await request.json();
+    const { bookingId } = body;
+
+    await prisma.preReservation.update({
+      where: { id },
+      data: { bookingId: bookingId || null, converted: !!bookingId },
+    });
+
+    return Response.json({ success: true });
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Failed to update pre-reservation";
     return Response.json({ error: msg }, { status: 500 });
   }
 }

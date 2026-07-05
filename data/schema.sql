@@ -180,13 +180,16 @@ CREATE TABLE "children_ages" (
 -- CreateTable
 CREATE TABLE "pre_reservations" (
     "id" TEXT NOT NULL,
-    "guest_name" TEXT NOT NULL,
+    "nom" TEXT NOT NULL,
+    "prenom" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "room_id" UUID NOT NULL,
     "check_in" TIMESTAMP(3) NOT NULL,
     "check_out" TIMESTAMP(3) NOT NULL,
     "notes" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "converted" BOOLEAN NOT NULL DEFAULT false,
+    "booking_id" UUID,
 
     CONSTRAINT "pre_reservations_pkey" PRIMARY KEY ("id")
 );
@@ -306,6 +309,9 @@ CREATE TABLE "hotel_settings" (
 CREATE UNIQUE INDEX "bookings_booking_ref_key" ON "bookings"("booking_ref");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "pre_reservations_booking_id_key" ON "pre_reservations"("booking_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "cancellations_booking_id_key" ON "cancellations"("booking_id");
 
 -- CreateIndex
@@ -343,6 +349,9 @@ ALTER TABLE "children_ages" ADD CONSTRAINT "children_ages_booking_id_fkey" FOREI
 
 -- AddForeignKey
 ALTER TABLE "pre_reservations" ADD CONSTRAINT "pre_reservations_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "rooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "pre_reservations" ADD CONSTRAINT "pre_reservations_booking_id_fkey" FOREIGN KEY ("booking_id") REFERENCES "bookings"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "cancellations" ADD CONSTRAINT "cancellations_booking_id_fkey" FOREIGN KEY ("booking_id") REFERENCES "bookings"("id") ON DELETE CASCADE ON UPDATE CASCADE;

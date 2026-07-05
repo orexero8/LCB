@@ -20,6 +20,7 @@ export async function GET(
       childrenAges: true,
       partner: true,
       receptionist: true,
+      preReservation: { select: { id: true } },
     },
   });
 
@@ -67,6 +68,7 @@ export async function GET(
       discountCode: booking.discountCode,
       paymentMethod: booking.paymentMethod,
       notes: booking.notes,
+      fromPreReservation: !!booking.preReservation,
       createdAt: booking.createdAt.toISOString(),
       primaryGuest: primaryGuest
         ? {

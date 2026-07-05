@@ -7,7 +7,8 @@ import { toast } from "sonner";
 
 interface PreReservationData {
   id: string;
-  guestName: string;
+  nom: string;
+  prenom: string;
   phone: string;
   roomId: string;
   roomNumber: number;
@@ -32,7 +33,7 @@ export function PreReservationBadge({ token }: { token: string }) {
   const [rooms, setRooms] = useState<RoomOption[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [form, setForm] = useState({ guestName: "", phone: "", roomId: "", checkIn: "", checkOut: "" });
+  const [form, setForm] = useState({ nom: "", prenom: "", phone: "", roomId: "", checkIn: "", checkOut: "" });
 
   const fetchPreReservations = async () => {
     if (!token) return;
@@ -81,7 +82,7 @@ export function PreReservationBadge({ token }: { token: string }) {
   }, [open]);
 
   async function handleCreate() {
-    if (!form.guestName || !form.phone || !form.roomId || !form.checkIn || !form.checkOut) {
+    if (!form.nom || !form.prenom || !form.phone || !form.roomId || !form.checkIn || !form.checkOut) {
       toast.error("Veuillez remplir tous les champs");
       return;
     }
@@ -93,7 +94,7 @@ export function PreReservationBadge({ token }: { token: string }) {
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Erreur"); }
       toast.success("Pré-réservation créée");
-      setForm({ guestName: "", phone: "", roomId: "", checkIn: "", checkOut: "" });
+      setForm({ nom: "", prenom: "", phone: "", roomId: "", checkIn: "", checkOut: "" });
       setShowForm(false);
       fetchPreReservations();
     } catch (e: any) { toast.error(e.message); }
@@ -114,7 +115,7 @@ export function PreReservationBadge({ token }: { token: string }) {
   function openForm() {
     const today = new Date().toISOString().split("T")[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
-    setForm({ guestName: "", phone: "", roomId: "", checkIn: today, checkOut: tomorrow });
+    setForm({ nom: "", prenom: "", phone: "", roomId: "", checkIn: today, checkOut: tomorrow });
     setShowForm(true);
     setDeleteConfirmId(null);
     fetchRooms();
@@ -145,7 +146,7 @@ export function PreReservationBadge({ token }: { token: string }) {
       {open && (
         <div ref={dropdownRef} style={{
           position: "absolute", top: "calc(100% + 8px)", right: 0,
-          width: 380, maxHeight: 420, overflow: "auto",
+          width: 420, maxHeight: 480, overflow: "auto",
           background: "white", borderRadius: 14,
           boxShadow: "0 16px 48px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.08)",
           border: "1px solid #E2E8F0", zIndex: 100,
@@ -171,34 +172,60 @@ export function PreReservationBadge({ token }: { token: string }) {
 
           {/* Quick-add form */}
           {showForm && (
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid #E2E8F0", background: "#FFFBEB" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ display: "flex", gap: 6 }}>
-                  <input placeholder="Nom du client" value={form.guestName} onChange={(e) => setForm({ ...form, guestName: e.target.value })}
-                    style={{ flex: 1, padding: "6px 10px", fontSize: 12, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none" }} />
-                  <input placeholder="Téléphone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    style={{ flex: 1, padding: "6px 10px", fontSize: 12, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none" }} />
+            <div style={{ padding: "16px", borderBottom: "1px solid #E2E8F0", background: "#FFFBEB" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#92400E", marginBottom: 10 }}>
+                Nouvelle pré-réservation
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  <div>
+                    <label style={{ fontSize: 11, color: "#64748B", marginBottom: 2, display: "block" }}>Nom</label>
+                    <input value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none" }}
+                      placeholder="Nom" />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: "#64748B", marginBottom: 2, display: "block" }}>Prénom</label>
+                    <input value={form.prenom} onChange={(e) => setForm({ ...form, prenom: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none" }}
+                      placeholder="Prénom" />
+                  </div>
                 </div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  <select value={form.roomId} onChange={(e) => setForm({ ...form, roomId: e.target.value })}
-                    style={{ flex: 1, padding: "6px 10px", fontSize: 12, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none", background: "white" }}>
-                    <option value="">Chambre...</option>
-                    {rooms.sort((a, b) => a.roomNumber - b.roomNumber).map((r) => (
-                      <option key={r.id} value={r.id}>Ch. {r.roomNumber} ({r.floorName})</option>
-                    ))}
-                  </select>
-                  <input type="date" value={form.checkIn} onChange={(e) => {
-                    const d = new Date(e.target.value);
-                    d.setDate(d.getDate() + 1);
-                    setForm({ ...form, checkIn: e.target.value, checkOut: d.toISOString().split("T")[0] });
-                  }} style={{ flex: 1, padding: "6px 10px", fontSize: 12, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none" }} />
-                  <input type="date" value={form.checkOut} min={form.checkIn || undefined}
-                    onChange={(e) => setForm({ ...form, checkOut: e.target.value })}
-                    style={{ flex: 1, padding: "6px 10px", fontSize: 12, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none" }} />
+                <div>
+                  <label style={{ fontSize: 11, color: "#64748B", marginBottom: 2, display: "block" }}>Téléphone</label>
+                  <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none" }}
+                    placeholder="Téléphone" />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                  <div>
+                    <label style={{ fontSize: 11, color: "#64748B", marginBottom: 2, display: "block" }}>Chambre</label>
+                    <select value={form.roomId} onChange={(e) => setForm({ ...form, roomId: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none", background: "white" }}>
+                      <option value="">Chambre...</option>
+                      {rooms.sort((a, b) => a.roomNumber - b.roomNumber).map((r) => (
+                        <option key={r.id} value={r.id}>Ch. {r.roomNumber} ({r.floorName})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: "#64748B", marginBottom: 2, display: "block" }}>Arrivée</label>
+                    <input type="date" value={form.checkIn} onChange={(e) => {
+                      const d = new Date(e.target.value);
+                      d.setDate(d.getDate() + 1);
+                      setForm({ ...form, checkIn: e.target.value, checkOut: d.toISOString().split("T")[0] });
+                    }} style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: "#64748B", marginBottom: 2, display: "block" }}>Départ</label>
+                    <input type="date" value={form.checkOut} min={form.checkIn || undefined}
+                      onChange={(e) => setForm({ ...form, checkOut: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6, outline: "none" }} />
+                  </div>
                 </div>
                 <button onClick={handleCreate}
-                  style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: "#D4A853", color: "#0F172A", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, alignSelf: "flex-end" }}>
-                  <Check size={13} /> Créer
+                  style={{ padding: "8px 16px", borderRadius: 6, border: "none", background: "#D4A853", color: "#0F172A", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, alignSelf: "flex-end" }}>
+                  <Check size={15} /> Créer la pré-réservation
                 </button>
               </div>
             </div>
@@ -222,7 +249,7 @@ export function PreReservationBadge({ token }: { token: string }) {
                   <Clock size={16} color="#D97706" />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#1E293B" }}>{pr.guestName}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#1E293B" }}>{pr.nom} {pr.prenom}</div>
                   <div style={{ fontSize: 12, color: "#64748B", marginTop: 1 }}>Tél: {pr.phone}</div>
                   <div style={{ fontSize: 12, color: "#64748B" }}>
                     Ch. {pr.roomNumber} &middot; {pr.checkIn} → {pr.checkOut}
