@@ -62,7 +62,7 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
               FICHE DE VOYAGEUR
             </h1>
             <div style={{ fontSize: "10pt", fontWeight: "bold", marginTop: 3 }}>
-              CHAMBRE N° / Room No : <span style={{ borderBottom: "1.5px solid #000", padding: "0 16px" }}>{roomStr}</span>
+              CHAMBRE N° / Room No : <span style={{ borderBottom: "1.5px solid #000", padding: "0 16px", fontWeight: "bold", textTransform: "uppercase" }}>{roomStr}</span>
             </div>
             {data.relationLabel && (
               <div style={{ fontSize: "9pt", marginTop: 2, color: "#555" }}>
@@ -88,7 +88,7 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
           {data.childrenUnder15 !== undefined && (
             <div style={{ fontSize: "9pt", fontWeight: "bold", lineHeight: 1.3, marginBottom: 6, border: "1px solid #ccc", padding: "5px 8px", borderRadius: 3 }}>
               <div style={{ direction: "rtl", textAlign: "right" }}>عدد الأطفال أقل من 15 سنة</div>
-              Enfants &lt; 15 ans : <span style={{ borderBottom: "1px solid #000", padding: "0 16px" }}>{data.childrenUnder15}</span>
+              Enfants &lt; 15 ans : <span style={{ borderBottom: "1px solid #000", padding: "0 16px", fontWeight: "bold", textTransform: "uppercase" }}>{data.childrenUnder15}</span>
               <div style={{ fontWeight: "normal", fontSize: "8pt", color: "#444" }}>Accompanying children under 15</div>
             </div>
           )}
@@ -110,7 +110,7 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
                 <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
                   <span style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>رقم</span>
                   <span style={{ fontSize: "9pt", fontWeight: "bold" }}>N° :</span>
-                  <div style={{ borderBottom: "1.5px solid #000", height: 20, flex: 1, paddingLeft: 4, fontSize: "9pt", lineHeight: "20px" }}>
+                  <div style={{ borderBottom: "1.5px solid #000", height: 24, flex: 1, textAlign: "center", fontSize: "11pt", fontWeight: "bold", textTransform: "uppercase", lineHeight: "24px" }}>
                     {g?.idDocument || ""}
                   </div>
                 </div>
@@ -119,7 +119,7 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
                 <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
                   <span style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>سلم بتاريخ</span>
                   <span style={{ fontSize: "9pt", fontWeight: "bold" }}>Délivré le :</span>
-                  <div style={{ borderBottom: "1.5px solid #000", height: 20, flex: 1, paddingLeft: 4, fontSize: "9pt", lineHeight: "20px" }}>
+                  <div style={{ borderBottom: "1.5px solid #000", height: 24, flex: 1, textAlign: "center", fontSize: "11pt", fontWeight: "bold", textTransform: "uppercase", lineHeight: "24px" }}>
                     {g?.idDeliveryDate || ""}
                   </div>
                 </div>
@@ -132,7 +132,7 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
                 <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
                   <span style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>في</span>
                   <span style={{ fontSize: "9pt", fontWeight: "bold" }}>A :</span>
-                  <div style={{ borderBottom: "1.5px solid #000", height: 20, flex: 1, paddingLeft: 4, fontSize: "9pt", lineHeight: "20px" }}>
+                  <div style={{ borderBottom: "1.5px solid #000", height: 24, flex: 1, textAlign: "center", fontSize: "11pt", fontWeight: "bold", textTransform: "uppercase", lineHeight: "24px" }}>
                     {g?.idDeliveryPlace || ""}
                   </div>
                 </div>
@@ -141,7 +141,7 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
                 <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
                   <span style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>من</span>
                   <span style={{ fontSize: "9pt", fontWeight: "bold" }}>Par :</span>
-                  <div style={{ borderBottom: "1.5px solid #000", height: 20, flex: 1, paddingLeft: 4, fontSize: "9pt", lineHeight: "20px" }}>
+                  <div style={{ borderBottom: "1.5px solid #000", height: 24, flex: 1, textAlign: "center", fontSize: "11pt", fontWeight: "bold", textTransform: "uppercase", lineHeight: "24px" }}>
                     {g?.idAuthority || ""}
                   </div>
                 </div>
@@ -152,7 +152,7 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
             <div style={{ marginTop: 8, textAlign: "center" }}>
               <div style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl", marginBottom: 2 }}>تاريخ الدخول إلى الجزائر</div>
               <div style={{ fontSize: "9pt", fontWeight: "bold" }}>
-                Date d&apos;entrée en Algérie : <span style={{ borderBottom: "1.5px solid #000", padding: "0 12px" }}>{data.checkIn}</span>
+                Date d&apos;entrée en Algérie : <span style={{ borderBottom: "1.5px solid #000", padding: "0 12px", fontWeight: "bold", textTransform: "uppercase" }}>{data.checkIn}</span>
               </div>
               <div style={{ fontSize: "7pt", marginTop: 2 }}>Date of arrival in Algeria</div>
             </div>
@@ -161,7 +161,7 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
               <div style={{ marginTop: 6, textAlign: "center" }}>
                 <div style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl", marginBottom: 2 }}>رقم عقد الزواج</div>
                 <div style={{ fontSize: "9pt", fontWeight: "bold" }}>
-                  N° Acte de Mariage : <span style={{ borderBottom: "1.5px solid #000", padding: "0 12px" }}>{data.acte}</span>
+                  N° Acte de Mariage : <span style={{ borderBottom: "1.5px solid #000", padding: "0 12px", fontWeight: "bold", textTransform: "uppercase" }}>{data.acte}</span>
                 </div>
               </div>
             )}
@@ -194,7 +194,7 @@ function Field({ label, ar, sub, value }: { label: string; ar: string; sub?: str
         </div>
         <div style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>{ar} :</div>
       </div>
-      <div style={{ borderBottom: "1.5px solid #000", height: 18, width: "100%", paddingLeft: value ? 4 : 0, fontSize: "9pt", lineHeight: "18px" }}>
+      <div style={{ borderBottom: "1.5px solid #000", height: 22, width: "100%", textAlign: "center", fontSize: "11pt", fontWeight: "bold", textTransform: "uppercase", lineHeight: "22px" }}>
         {value || ""}
       </div>
     </div>
