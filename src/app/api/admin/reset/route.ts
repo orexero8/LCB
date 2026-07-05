@@ -2,41 +2,22 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/api-auth";
 
 async function performReset() {
+  // Wipe all transactional data in FK-safe order
+  await prisma.preReservation.deleteMany();
+  await prisma.checkoutAlert.deleteMany();
+  await prisma.cancellation.deleteMany();
+  await prisma.childAge.deleteMany();
+  await prisma.bookingGuest.deleteMany();
+  await prisma.bookingRoom.deleteMany();
+  await prisma.booking.deleteMany();
+  await prisma.expense.deleteMany();
+  await prisma.shiftReport.deleteMany();
+  await prisma.loginLog.deleteMany();
+
+  // Reset rooms to available
   await prisma.room.updateMany({ data: { status: "AVAILABLE" } });
 
-  const activeShifts = await prisma.shiftReport.findMany({ where: { status: "ACTIVE" } });
-  for (const shift of activeShifts) {
-    const shiftBookings = await prisma.booking.findMany({
-      where: {
-        receptionistId: shift.userId,
-        createdAt: { gte: shift.startedAt },
-        status: "ACTIVE",
-      },
-    });
-    const cashCollected = shiftBookings
-      .filter((b) => b.paymentMethod === "CASH")
-      .reduce((s, b) => s + Number(b.totalAmount), 0);
-    const expenses = await prisma.expense.findMany({ where: { shiftReportId: shift.id } });
-    const expTotal = expenses.reduce((s, e) => s + Number(e.amount), 0);
-    const expectedCash = Number(shift.startingCash) + cashCollected - expTotal;
-
-    await prisma.shiftReport.update({
-      where: { id: shift.id },
-      data: {
-        status: "CLOSED",
-        endedAt: new Date(),
-        endingCash: 0,
-        expectedCash,
-        cashDifference: -expectedCash,
-        cashCollected,
-        tpeCollected: 0,
-        partnerCollected: 0,
-      },
-    });
-  }
-
-  await prisma.preReservation.deleteMany();
-  return activeShifts.length;
+  return 0;
 }
 
 export async function POST(request: Request) {
