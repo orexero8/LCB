@@ -149,6 +149,10 @@ export default function ReceptionistDashboard() {
   });
 
   const floorsSorted = [...floors].sort((a, b) => a.sortOrder - b.sortOrder);
+  const todayStr = new Date().toISOString().split("T")[0];
+  const departuresToday = floorsSorted.flatMap((f) => f.rooms).filter(
+    (r) => r.currentBooking?.checkOut === todayStr && (r.status === "OCCUPIED" || r.status === "RESERVED")
+  );
 
   return (
     <div className="h-screen flex flex-col" style={{ background: "#F1F5F9", overflow: "hidden" }}>
@@ -263,6 +267,15 @@ export default function ReceptionistDashboard() {
                     </span>
                   </div>
                 ))}
+                {departuresToday.length > 0 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: 8 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: 3, background: "#D97706", boxShadow: "0 0 6px rgba(217,119,6,0.6)" }} />
+                    <span style={{ fontSize: 11, color: "#64748B", fontWeight: 500 }}>
+                      Départs aujourd'hui{" "}
+                      <span style={{ fontWeight: 700, color: "#D97706" }}>{departuresToday.length}</span>
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

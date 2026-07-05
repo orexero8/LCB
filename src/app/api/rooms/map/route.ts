@@ -5,6 +5,28 @@ export async function GET(request: Request) {
   const auth = requireAnyUser(request);
   if (!auth.authorized) return auth.response;
 
+  // Auto-checkout: bookings past checkOut date (after 12:00)
+  const now = new Date();
+  const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+  const expiredBookings = await prisma.booking.findMany({
+    where: { status: "ACTIVE", checkOut: { lt: now } },
+    include: { bookingRooms: true },
+  });
+  for (const b of expiredBookings) {
+    const checkoutTime = new Date(b.checkOut);
+    checkoutTime.setHours(12, 0, 0, 0);
+    if (now >= checkoutTime) {
+      await prisma.booking.update({
+        where: { id: b.id },
+        data: { status: "CHECKED_OUT" },
+      });
+      await prisma.room.updateMany({
+        where: { id: { in: b.bookingRooms.map((br) => br.roomId) } },
+        data: { status: "AVAILABLE" },
+      });
+    }
+  }
+
   const floors = await prisma.floor.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: "asc" },
