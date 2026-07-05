@@ -39,22 +39,6 @@ async function performReset() {
   return activeShifts.length;
 }
 
-// GET for quick browser access: /api/admin/reset?secret=YOUR_SECRET
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const secret = searchParams.get("secret");
-  if (secret !== process.env.ADMIN_RESET_SECRET && secret !== "reset123") {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  try {
-    const closed = await performReset();
-    return Response.json({ success: true, closedShifts: closed });
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : "Reset failed";
-    return Response.json({ error: msg }, { status: 500 });
-  }
-}
-
 export async function POST(request: Request) {
   const auth = requireAdmin(request);
   if (!auth.authorized) return auth.response;
