@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 import { useRouter } from "next/navigation";
-import { Calendar, BedDouble, User, Search, X, Printer, Users } from "lucide-react";
+import { toast } from "sonner";
+import { Calendar, BedDouble, User, Search, X, Printer, Users, Edit3, Save } from "lucide-react";
 import { FicheVoyageur } from "@/components/fiche/fiche-voyageur";
 import type { FicheData, GuestInfo } from "@/components/fiche/fiche-voyageur";
 
@@ -104,6 +105,18 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [showFiche, setShowFiche] = useState(false);
   const [ficheTarget, setFicheTarget] = useState<{ guest: GuestInfo; label: string; childrenUnder15?: number } | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({
+    checkOut: "",
+    notes: "",
+    guestNom: "",
+    guestPrenom: "",
+    guestPhone: "",
+    guestIdDocument: "",
+    guestIdDeliveryDate: "",
+    guestIdDeliveryPlace: "",
+    guestIdAuthority: "",
+  });
 
   useEffect(() => {
     const t = localStorage.getItem("token");
@@ -152,6 +165,18 @@ export default function HistoryPage() {
       setSelectedBooking(data.booking);
       setShowFiche(false);
       setFicheTarget(null);
+      setEditMode(false);
+      setEditForm({
+        checkOut: data.booking.checkOut,
+        notes: data.booking.notes || "",
+        guestNom: data.booking.primaryGuest?.nom || "",
+        guestPrenom: data.booking.primaryGuest?.prenom || "",
+        guestPhone: data.booking.primaryGuest?.phone || "",
+        guestIdDocument: data.booking.primaryGuest?.idDocument || "",
+        guestIdDeliveryDate: data.booking.primaryGuest?.idDeliveryDate || "",
+        guestIdDeliveryPlace: data.booking.primaryGuest?.idDeliveryPlace || "",
+        guestIdAuthority: data.booking.primaryGuest?.idAuthority || "",
+      });
     } catch { /* ignore */ }
   }
 
@@ -228,6 +253,32 @@ export default function HistoryPage() {
       idDeliveryPlace: c.idDeliveryPlace,
       idAuthority: c.idAuthority,
     };
+  }
+
+  async function handleEditSave() {
+    if (!selectedBooking || !token) return;
+    try {
+      const res = await fetch(`/api/bookings/${selectedBooking.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          checkOut: editForm.checkOut || undefined,
+          notes: editForm.notes,
+          guestNom: editForm.guestNom || undefined,
+          guestPrenom: editForm.guestPrenom || undefined,
+          guestPhone: editForm.guestPhone || undefined,
+          guestIdDocument: editForm.guestIdDocument || undefined,
+          guestIdDeliveryDate: editForm.guestIdDeliveryDate || undefined,
+          guestIdDeliveryPlace: editForm.guestIdDeliveryPlace || undefined,
+          guestIdAuthority: editForm.guestIdAuthority || undefined,
+        }),
+      });
+      if (!res.ok) return;
+      toast.success("Réservation mise à jour");
+      setEditMode(false);
+      openDetail(selectedBooking.id);
+      fetchBookings();
+    } catch { /* ignore */ }
   }
 
   const allFamilyMembers = selectedBooking
@@ -366,15 +417,76 @@ export default function HistoryPage() {
               </button>
             </div>
 
-            {/* Booking info */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16, fontSize: 13 }}>
-              <div><span style={{ color: "#94A3B8" }}>Arrivée :</span> {selectedBooking.checkIn}</div>
-              <div><span style={{ color: "#94A3B8" }}>Départ :</span> {selectedBooking.checkOut} ({selectedBooking.nights} nuits)</div>
-              <div><span style={{ color: "#94A3B8" }}>Chambres :</span> {selectedBooking.rooms.map((r) => r.roomNumber.toString().padStart(2, "0")).join(", ")}</div>
-              <div><span style={{ color: "#94A3B8" }}>Paiement :</span> {selectedBooking.paymentMethod === "CASH" ? "Espèces" : selectedBooking.paymentMethod === "TPE" ? "Carte" : `Partenaire (${selectedBooking.partner?.name || ""})`}</div>
-              <div><span style={{ color: "#94A3B8" }}>Montant :</span> <span style={{ fontWeight: 700, fontSize: 15, color: "#2563EB" }}>{selectedBooking.totalAmount.toLocaleString()} DA</span></div>
-              <div><span style={{ color: "#94A3B8" }}>Réceptionniste :</span> {selectedBooking.receptionist}</div>
-            </div>
+            {/* Booking info / Edit form */}
+            {editMode ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16, fontSize: 13, background: "#FFFBEB", padding: 16, borderRadius: 12, border: "2px solid #D4A853" }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "#92400E", marginBottom: 4 }}>Modifier la réservation</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div><span style={{ color: "#94A3B8", display: "block", marginBottom: 2 }}>Arrivée</span><strong>{selectedBooking.checkIn}</strong></div>
+                  <div>
+                    <label style={{ color: "#94A3B8", display: "block", marginBottom: 2, fontSize: 12 }}>Départ</label>
+                    <input type="date" value={editForm.checkOut} min={selectedBooking.checkIn}
+                      onChange={(e) => setEditForm({ ...editForm, checkOut: e.target.value })}
+                      style={{ width: "100%", padding: "6px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6 }} />
+                  </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div>
+                    <label style={{ color: "#94A3B8", display: "block", marginBottom: 2, fontSize: 12 }}>Nom</label>
+                    <input value={editForm.guestNom} onChange={(e) => setEditForm({ ...editForm, guestNom: e.target.value })}
+                      style={{ width: "100%", padding: "6px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6 }} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#94A3B8", display: "block", marginBottom: 2, fontSize: 12 }}>Prénom</label>
+                    <input value={editForm.guestPrenom} onChange={(e) => setEditForm({ ...editForm, guestPrenom: e.target.value })}
+                      style={{ width: "100%", padding: "6px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6 }} />
+                  </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div>
+                    <label style={{ color: "#94A3B8", display: "block", marginBottom: 2, fontSize: 12 }}>Téléphone</label>
+                    <input value={editForm.guestPhone} onChange={(e) => setEditForm({ ...editForm, guestPhone: e.target.value })}
+                      style={{ width: "100%", padding: "6px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6 }} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#94A3B8", display: "block", marginBottom: 2, fontSize: 12 }}>N° Pièce d'identité</label>
+                    <input value={editForm.guestIdDocument} onChange={(e) => setEditForm({ ...editForm, guestIdDocument: e.target.value })}
+                      style={{ width: "100%", padding: "6px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6 }} />
+                  </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                  <div>
+                    <label style={{ color: "#94A3B8", display: "block", marginBottom: 2, fontSize: 12 }}>Délivré le</label>
+                    <input type="date" value={editForm.guestIdDeliveryDate} onChange={(e) => setEditForm({ ...editForm, guestIdDeliveryDate: e.target.value })}
+                      style={{ width: "100%", padding: "6px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6 }} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#94A3B8", display: "block", marginBottom: 2, fontSize: 12 }}>A (lieu)</label>
+                    <input value={editForm.guestIdDeliveryPlace} onChange={(e) => setEditForm({ ...editForm, guestIdDeliveryPlace: e.target.value })}
+                      style={{ width: "100%", padding: "6px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6 }} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#94A3B8", display: "block", marginBottom: 2, fontSize: 12 }}>Par (autorité)</label>
+                    <input value={editForm.guestIdAuthority} onChange={(e) => setEditForm({ ...editForm, guestIdAuthority: e.target.value })}
+                      style={{ width: "100%", padding: "6px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6 }} />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ color: "#94A3B8", display: "block", marginBottom: 2, fontSize: 12 }}>Notes</label>
+                  <textarea value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} rows={2}
+                    style={{ width: "100%", padding: "6px 10px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 6, resize: "none", fontFamily: "inherit" }} />
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16, fontSize: 13 }}>
+                <div><span style={{ color: "#94A3B8" }}>Arrivée :</span> {selectedBooking.checkIn}</div>
+                <div><span style={{ color: "#94A3B8" }}>Départ :</span> {selectedBooking.checkOut} ({selectedBooking.nights} nuits)</div>
+                <div><span style={{ color: "#94A3B8" }}>Chambres :</span> {selectedBooking.rooms.map((r) => r.roomNumber.toString().padStart(2, "0")).join(", ")}</div>
+                <div><span style={{ color: "#94A3B8" }}>Paiement :</span> {selectedBooking.paymentMethod === "CASH" ? "Espèces" : selectedBooking.paymentMethod === "TPE" ? "Carte" : `Partenaire (${selectedBooking.partner?.name || ""})`}</div>
+                <div><span style={{ color: "#94A3B8" }}>Montant :</span> <span style={{ fontWeight: 700, fontSize: 15, color: "#2563EB" }}>{selectedBooking.totalAmount.toLocaleString()} DA</span></div>
+                <div><span style={{ color: "#94A3B8" }}>Réceptionniste :</span> {selectedBooking.receptionist}</div>
+              </div>
+            )}
 
             {selectedBooking.isMarried && selectedBooking.acte && (
               <div style={{ fontSize: 12, color: "#64748B", marginBottom: 12 }}>
@@ -437,42 +549,61 @@ export default function HistoryPage() {
 
             {/* Bottom actions */}
             <div style={{ display: "flex", gap: 8, borderTop: "1px solid #E2E8F0", paddingTop: 16 }}>
-              {/* Fiche button for primary guest when alone */}
-              {allFamilyMembers.length <= 1 && selectedBooking.primaryGuest && (
-                <button onClick={() => {
-                  openFiche(
-                    guestToInfo(selectedBooking.primaryGuest as GuestEntry),
-                    "Chef de famille",
-                    (selectedBooking.children || []).filter((c: ChildEntry) => c.age < 15).length,
-                  );
-                }}
-                  style={{
-                    padding: "10px 20px", borderRadius: 10, border: "none",
-                    background: "#0F172A", color: "white", fontSize: 13, fontWeight: 700,
-                    cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
-                  }}>
-                  <Printer size={15} /> Fiche de Voyageur
-                </button>
+              {editMode ? (
+                <>
+                  <button onClick={handleEditSave}
+                    style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: "#D4A853", color: "#0F172A", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                    <Save size={15} /> Enregistrer
+                  </button>
+                  <button onClick={() => setEditMode(false)}
+                    style={{ padding: "10px 20px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", fontSize: 13, fontWeight: 600, color: "#64748B", cursor: "pointer" }}>
+                    Annuler
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Fiche button for primary guest when alone */}
+                  {allFamilyMembers.length <= 1 && selectedBooking.primaryGuest && (
+                    <button onClick={() => {
+                      openFiche(
+                        guestToInfo(selectedBooking.primaryGuest as GuestEntry),
+                        "Chef de famille",
+                        (selectedBooking.children || []).filter((c: ChildEntry) => c.age < 15).length,
+                      );
+                    }}
+                      style={{
+                        padding: "10px 20px", borderRadius: 10, border: "none",
+                        background: "#0F172A", color: "white", fontSize: 13, fontWeight: 700,
+                        cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+                      }}>
+                      <Printer size={15} /> Fiche de Voyageur
+                    </button>
+                  )}
+                  <button onClick={async () => {
+                    const res = await fetch(`/api/bookings/${selectedBooking.id}/voucher/pdf`, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (!res.ok) return;
+                    const blob = await res.blob();
+                    window.open(URL.createObjectURL(blob), "_blank");
+                  }}
+                    style={{
+                      padding: "10px 20px", borderRadius: 10, border: "2px solid #0F172A",
+                      background: "white", color: "#0F172A", fontSize: 13, fontWeight: 700,
+                      cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+                    }}>
+                    <Printer size={15} /> Reçu PDF
+                  </button>
+                  <button onClick={() => setEditMode(true)}
+                    style={{ padding: "10px 20px", borderRadius: 10, border: "2px solid #D4A853", background: "#FFFBEB", color: "#92400E", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                    <Edit3 size={15} /> Modifier
+                  </button>
+                  <button onClick={() => setSelectedBooking(null)}
+                    style={{ padding: "10px 20px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", fontSize: 13, fontWeight: 600, color: "#64748B", cursor: "pointer" }}>
+                    Fermer
+                  </button>
+                </>
               )}
-              <button onClick={async () => {
-                const res = await fetch(`/api/bookings/${selectedBooking.id}/voucher/pdf`, {
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!res.ok) return;
-                const blob = await res.blob();
-                window.open(URL.createObjectURL(blob), "_blank");
-              }}
-                style={{
-                  padding: "10px 20px", borderRadius: 10, border: "2px solid #0F172A",
-                  background: "white", color: "#0F172A", fontSize: 13, fontWeight: 700,
-                  cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
-                }}>
-                <Printer size={15} /> Reçu PDF
-              </button>
-              <button onClick={() => setSelectedBooking(null)}
-                style={{ padding: "10px 20px", borderRadius: 10, border: "2px solid #E2E8F0", background: "white", fontSize: 13, fontWeight: 600, color: "#64748B", cursor: "pointer" }}>
-                Fermer
-              </button>
             </div>
           </div>
         </>

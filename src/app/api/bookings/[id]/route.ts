@@ -124,3 +124,74 @@ export async function GET(
     },
   });
 }
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = requireAnyUser(request);
+  if (!auth.authorized) return auth.response;
+
+  const { id } = await params;
+
+  try {
+    const body = await request.json();
+    const { checkOut, notes, guestNom, guestPrenom, guestPhone, guestIdDocument, guestIdDeliveryDate, guestIdDeliveryPlace, guestIdAuthority } = body;
+
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        bookingGuests: { where: { isPrimary: true }, include: { client: true } },
+        bookingRooms: true,
+      },
+    });
+
+    if (!booking) {
+      return Response.json({ error: "Booking not found" }, { status: 404 });
+    }
+
+    const updateData: any = {};
+    if (checkOut !== undefined) updateData.checkOut = new Date(checkOut);
+    if (notes !== undefined) updateData.notes = notes;
+
+    if (checkOut !== undefined) {
+      const nights = Math.ceil(
+        (new Date(checkOut).getTime() - booking.checkIn.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (nights > 0) {
+        const totalPrice = booking.bookingRooms.reduce(
+          (sum, br) => sum + Number(br.priceAtBooking) * nights,
+          0
+        );
+        updateData.totalAmount = totalPrice;
+      }
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      await prisma.booking.update({ where: { id }, data: updateData });
+    }
+
+    if (booking.bookingGuests[0]?.client) {
+      const clientUpdate: any = {};
+      if (guestNom !== undefined) clientUpdate.nom = guestNom;
+      if (guestPrenom !== undefined) clientUpdate.prenom = guestPrenom;
+      if (guestPhone !== undefined) clientUpdate.phone = guestPhone;
+      if (guestIdDocument !== undefined) clientUpdate.idDocument = guestIdDocument;
+      if (guestIdDeliveryDate !== undefined) clientUpdate.idDeliveryDate = guestIdDeliveryDate ? new Date(guestIdDeliveryDate) : null;
+      if (guestIdDeliveryPlace !== undefined) clientUpdate.idDeliveryPlace = guestIdDeliveryPlace;
+      if (guestIdAuthority !== undefined) clientUpdate.idAuthority = guestIdAuthority;
+
+      if (Object.keys(clientUpdate).length > 0) {
+        await prisma.client.update({
+          where: { id: booking.bookingGuests[0].client.id },
+          data: clientUpdate,
+        });
+      }
+    }
+
+    return Response.json({ success: true });
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Failed to update booking";
+    return Response.json({ error: msg }, { status: 500 });
+  }
+}

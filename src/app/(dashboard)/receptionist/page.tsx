@@ -287,7 +287,7 @@ export default function ReceptionistDashboard() {
       )}
 
       {/* Room map */}
-      <div style={{ flex: 1, overflow: "auto", padding: "8px 24px 16px" }}>
+      <div style={{ flex: 1, overflow: "auto", padding: "4px 24px 8px" }}>
         <OfflineIndicator />
         <InstallPrompt />
         {floorsSorted.map((floor) => {
@@ -298,29 +298,23 @@ export default function ReceptionistDashboard() {
           const bottomRooms = layout.bottom?.map((n) => byNumber.get(n)).filter(Boolean) as RoomData[] || [];
 
           return (
-            <section key={floor.id} style={{ marginBottom: 12 }}>
+            <section key={floor.id} style={{ marginBottom: 8 }}>
               <div style={{
-                display: "flex", alignItems: "center", gap: 10, marginBottom: 8,
-                padding: "4px 0",
+                display: "flex", alignItems: "center", gap: 8, marginBottom: 4,
+                padding: "2px 0",
               }}>
                 <div style={{
-                  width: 4, height: 20, borderRadius: 2, background: "#D4A853",
+                  width: 3, height: 16, borderRadius: 2, background: "#D4A853",
                 }} />
                 <h3 style={{
-                  fontSize: 14, fontWeight: 700, color: "#1E293B", letterSpacing: 0.3,
+                  fontSize: 12, fontWeight: 700, color: "#1E293B",
                 }}>
                   {floor.name}
                 </h3>
-                <span style={{
-                  fontSize: 11, color: "#94A3B8", fontWeight: 500,
-                  background: "#F1F5F9", padding: "2px 8px", borderRadius: 6,
-                }}>
-                  {floor.rooms.length} chambres
-                </span>
               </div>
 
               {/* Top row */}
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 5 }}>
                 {topRooms.map((room) => (
                   <RoomTile key={room.id} room={room} onClick={() => setSelectedRoom(room)} />
                 ))}
@@ -329,15 +323,13 @@ export default function ReceptionistDashboard() {
               {/* Hallway divider */}
               {bottomRooms.length > 0 && (
                 <div style={{
-                  margin: "8px 0", height: 10, borderRadius: 4,
+                  margin: "4px 0", height: 6, borderRadius: 3,
                   background: "linear-gradient(to right, #CBD5E1, #94A3B8, #CBD5E1)",
-                  boxShadow: "inset 0 1px 2px rgba(0,0,0,0.06)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  position: "relative",
                 }}>
                   <span style={{
-                    fontSize: 9, color: "#64748B", fontWeight: 600, letterSpacing: 2,
-                    textTransform: "uppercase", background: "#CBD5E1", padding: "0 12px",
+                    fontSize: 8, color: "#64748B", fontWeight: 600, letterSpacing: 1.5,
+                    background: "#CBD5E1", padding: "0 10px",
                   }}>
                     Couloir
                   </span>
@@ -346,7 +338,7 @@ export default function ReceptionistDashboard() {
 
               {/* Bottom row */}
               {bottomRooms.length > 0 && (
-                <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ display: "flex", gap: 5 }}>
                   {bottomRooms.map((room) => (
                     <RoomTile key={room.id} room={room} onClick={() => setSelectedRoom(room)} />
                   ))}

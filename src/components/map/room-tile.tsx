@@ -74,8 +74,8 @@ export function RoomTile({
       onClick={onClick}
       className="flex flex-col items-center justify-center rounded-2xl border-none cursor-pointer transition-all duration-150 hover:scale-[1.06] active:scale-[1.02]"
       style={{
-        width: 128,
-        height: 128,
+        width: 100,
+        height: 100,
         background: `linear-gradient(145deg, ${c.bg}, ${c.bg}dd)`,
         boxShadow: `0 4px 14px ${c.glow}, inset 0 1px 0 rgba(255,255,255,0.2)`,
         gap: 3,
@@ -90,11 +90,11 @@ export function RoomTile({
         borderRadius: "14px 14px 0 0",
         pointerEvents: "none",
       }} />
-      <BedIcons layout={room.bedLayout} size={20} />
-      <span style={{ fontSize: 28, fontWeight: 900, color: "white", lineHeight: 1.1, letterSpacing: 1.5, textShadow: "0 1px 4px rgba(0,0,0,0.15)" }}>
+      <BedIcons layout={room.bedLayout} size={16} />
+      <span style={{ fontSize: 22, fontWeight: 900, color: "white", lineHeight: 1.1, letterSpacing: 1.5, textShadow: "0 1px 4px rgba(0,0,0,0.15)" }}>
         {room.roomNumber.toString().padStart(2, "0")}
       </span>
-      <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.85)", lineHeight: 1 }}>
+      <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.85)", lineHeight: 1 }}>
         {room.pricePerNight.toLocaleString()} DA
       </span>
       {room.currentBooking && (

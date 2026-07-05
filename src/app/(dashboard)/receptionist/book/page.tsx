@@ -605,13 +605,15 @@ function WizardContent() {
                 </div>
                 <div>
                   <Label style={{ fontSize: 11, color: "#64748B", marginBottom: 4, display: "block" }}>Âge</Label>
-                  <Input type="number" min={0} max={17} value={s.childrenAges[i]?.age || ""}
+                  <select value={s.childrenAges[i]?.age || 0}
                     onChange={(e) => {
                       const ages = [...s.childrenAges];
                       ages[i] = { ...ages[i], age: parseInt(e.target.value) || 0 };
                       update({ childrenAges: ages });
                     }}
-                    className="h-10 w-20 text-sm" />
+                    style={{ height: 40, width: 80, borderRadius: 8, border: "1px solid #E2E8F0", padding: "0 8px", fontSize: 13, background: "white" }}>
+                    {Array.from({ length: 13 }, (_, a) => <option key={a} value={a}>{a} {a === 0 ? "an" : "ans"}</option>)}
+                  </select>
                 </div>
               </div>
             ))}
