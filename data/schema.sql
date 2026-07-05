@@ -178,6 +178,20 @@ CREATE TABLE "children_ages" (
 );
 
 -- CreateTable
+CREATE TABLE "pre_reservations" (
+    "id" TEXT NOT NULL,
+    "guest_name" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "room_id" UUID NOT NULL,
+    "check_in" TIMESTAMP(3) NOT NULL,
+    "check_out" TIMESTAMP(3) NOT NULL,
+    "notes" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "pre_reservations_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "cancellations" (
     "id" UUID NOT NULL,
     "booking_id" UUID NOT NULL,
@@ -326,6 +340,9 @@ ALTER TABLE "booking_guests" ADD CONSTRAINT "booking_guests_client_id_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "children_ages" ADD CONSTRAINT "children_ages_booking_id_fkey" FOREIGN KEY ("booking_id") REFERENCES "bookings"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "pre_reservations" ADD CONSTRAINT "pre_reservations_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "rooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "cancellations" ADD CONSTRAINT "cancellations_booking_id_fkey" FOREIGN KEY ("booking_id") REFERENCES "bookings"("id") ON DELETE CASCADE ON UPDATE CASCADE;

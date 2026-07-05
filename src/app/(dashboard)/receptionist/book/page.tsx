@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Check, ChevronLeft, Minus, Plus, BedSingle, BedDouble, Banknote, CreditCard, Handshake } from "lucide-react";
+import { SoldeCaisse } from "@/components/shift/solde-caisse";
+import { Check, ChevronLeft, Minus, Plus, BedSingle, BedDouble, Banknote, CreditCard, Handshake, Wallet, Clock } from "lucide-react";
+import { toast } from "sonner";
 import { WILAYAS } from "@/lib/wilayas";
 import { NATIONALITES } from "@/lib/nationalites";
 
@@ -175,6 +177,7 @@ function WizardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedRoomId = searchParams.get("roomId");
+  const preReservationId = searchParams.get("preReservationId");
 
   const [token, setToken] = useState<string | null>(null);
   const [s, setS] = useState<WizardState>({
@@ -262,6 +265,32 @@ function WizardContent() {
     }, 10000);
     return () => clearInterval(id);
   }, [token]);
+
+  // Pre-fill form from pre-reservation
+  useEffect(() => {
+    if (!token || !preReservationId) return;
+    fetch(`/api/pre-reservations`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (!data) return;
+        const pr = data.preReservations?.find((p: any) => p.id === preReservationId);
+        if (!pr) return;
+        const nameParts = pr.guestName.split(" ");
+        const prenom = nameParts.pop() || "";
+        const nom = nameParts.join(" ");
+        update({
+          clientNom: nom,
+          clientPrenom: prenom,
+          clientPhone: pr.phone,
+          checkIn: pr.checkIn,
+          checkOut: pr.checkOut,
+          selectedRoomIds: [pr.roomId],
+        });
+      })
+      .catch(() => {});
+  }, [token, preReservationId]);
 
   const update = useCallback((partial: Partial<WizardState>) => {
     setS((prev) => ({ ...prev, ...partial }));
@@ -433,6 +462,30 @@ function WizardContent() {
     }
   }
 
+  async function handlePreReservation() {
+    if (!token || !s.selectedRoomIds[0] || !s.clientNom || !s.clientPrenom || !s.clientPhone || !s.checkIn || !s.checkOut) return;
+    update({ isSubmitting: true, error: null });
+    try {
+      const res = await fetch("/api/pre-reservations", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          guestName: `${s.clientNom} ${s.clientPrenom}`,
+          phone: s.clientPhone,
+          roomId: s.selectedRoomIds[0],
+          checkIn: s.checkIn,
+          checkOut: s.checkOut,
+          notes: s.notes || undefined,
+        }),
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Erreur"); }
+      toast.success("Pré-réservation créée !");
+      router.push("/receptionist");
+    } catch (e: any) {
+      update({ error: e.message || "Erreur lors de la pré-réservation", isSubmitting: false });
+    }
+  }
+
   if (!token) return null;
 
   const canGoNext = (): boolean => {
@@ -457,17 +510,32 @@ function WizardContent() {
   function renderStep0() {
     return (
       <div style={{ maxWidth: 700, margin: "0 auto" }}>
-        {/* Date pickers + counters */}
+        {/* Date picker + Nights */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
           <div>
             <Label style={{ display: "block", fontSize: 14, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>Arrivée</Label>
-            <Input type="date" value={s.checkIn} onChange={(e) => update({ checkIn: e.target.value })}
+            <Input type="date" value={s.checkIn} onChange={(e) => {
+              const d = new Date(e.target.value);
+              const nights = s.checkOut && s.checkIn ? Math.max(1, Math.ceil((new Date(s.checkOut).getTime() - new Date(s.checkIn).getTime()) / (1000 * 60 * 60 * 24))) : 1;
+              d.setDate(d.getDate() + nights);
+              update({ checkIn: e.target.value, checkOut: d.toISOString().split("T")[0] });
+            }}
               min={new Date().toISOString().split("T")[0]} className="h-12 text-base" />
           </div>
           <div>
-            <Label style={{ display: "block", fontSize: 14, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>Départ</Label>
-            <Input type="date" value={s.checkOut} min={s.checkIn || undefined}
-              onChange={(e) => update({ checkOut: e.target.value })} className="h-12 text-base" />
+            <Label style={{ display: "block", fontSize: 14, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>Nuits</Label>
+            <Counter value={nights || 1} onChange={(n) => {
+              if (s.checkIn) {
+                const d = new Date(s.checkIn);
+                d.setDate(d.getDate() + Math.max(1, n));
+                update({ checkOut: d.toISOString().split("T")[0] });
+              }
+            }} min={1} max={30} />
+            {s.checkIn && s.checkOut && (
+              <div style={{ fontSize: 12, color: "#64748B", marginTop: 4 }}>
+                Départ: <strong>{new Date(s.checkOut).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}</strong>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1058,14 +1126,30 @@ function WizardContent() {
         )}
         {s.error && <p style={{ fontSize: 14, color: "#EF4444", textAlign: "center", marginBottom: 12 }}>{s.error}</p>}
 
-        <button onClick={submitBooking} disabled={s.isSubmitting || selectedRooms.length === 0 || s.noShift}
-          style={{
-            width: "100%", padding: "16px", borderRadius: 14, border: "none",
-            background: s.isSubmitting || selectedRooms.length === 0 ? "#94A3B8" : "#2563EB",
-            color: "white", fontSize: 17, fontWeight: 700, cursor: s.isSubmitting || selectedRooms.length === 0 ? "not-allowed" : "pointer",
-          }}>
-          {s.isSubmitting ? "Création en cours..." : `Confirmer la réservation (${totalAmount > 0 ? totalAmount.toLocaleString() : "..."} DA)`}
-        </button>
+        <div style={{ display: "flex", gap: 10 }}>
+          {s.selectedRoomIds.length === 1 && s.clientPhone && (
+            <button onClick={handlePreReservation} disabled={s.isSubmitting}
+              style={{
+                flex: 1, padding: "16px", borderRadius: 14, border: "2px solid #D4A853",
+                background: "white", color: "#92400E", fontSize: 15, fontWeight: 700,
+                cursor: s.isSubmitting ? "not-allowed" : "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                opacity: s.isSubmitting ? 0.5 : 1,
+              }}>
+              <Clock size={18} /> Pré-réserver
+            </button>
+          )}
+          <button onClick={submitBooking} disabled={s.isSubmitting || selectedRooms.length === 0 || s.noShift}
+            style={{
+              flex: s.selectedRoomIds.length === 1 && s.clientPhone ? 1 : undefined,
+              width: s.selectedRoomIds.length === 1 && s.clientPhone ? undefined : "100%",
+              padding: "16px", borderRadius: 14, border: "none",
+              background: s.isSubmitting || selectedRooms.length === 0 ? "#94A3B8" : "#2563EB",
+              color: "white", fontSize: 17, fontWeight: 700, cursor: s.isSubmitting || selectedRooms.length === 0 ? "not-allowed" : "pointer",
+            }}>
+            {s.isSubmitting ? "Création en cours..." : `Confirmer la réservation (${totalAmount > 0 ? totalAmount.toLocaleString() : "..."} DA)`}
+          </button>
+        </div>
       </div>
     );
   }
@@ -1095,7 +1179,9 @@ function WizardContent() {
             <ChevronLeft size={18} /> {backLabel}
           </button>
           <h1 style={{ fontSize: 15, fontWeight: 700, color: "#1E293B" }}>Nouvelle réservation</h1>
-          <div style={{ width: 80 }} />
+          <div style={{ minWidth: 180, display: "flex", justifyContent: "flex-end" }}>
+            <SoldeCaisse token={token!} />
+          </div>
         </div>
       </header>
 

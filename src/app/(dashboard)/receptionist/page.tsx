@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { RoomTile } from "@/components/map/room-tile";
 import { DetailPanel } from "@/components/map/detail-panel";
 import { ShiftPanel } from "@/components/shift/shift-panel";
+import { PreReservationBadge } from "@/components/shift/pre-reservation-badge";
+import { SoldeCaisse } from "@/components/shift/solde-caisse";
 import { OfflineIndicator } from "@/components/pwa/offline-indicator";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { LogOut, Plus, BedDouble, Calendar, Clock } from "lucide-react";
@@ -172,6 +174,7 @@ export default function ReceptionistDashboard() {
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <PreReservationBadge token={token!} />
           <button onClick={() => router.push("/receptionist/history")}
             style={{
               padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.2)",
@@ -262,20 +265,23 @@ export default function ReceptionistDashboard() {
                 ))}
               </div>
             </div>
-            <button onClick={() => router.push("/receptionist/book")}
-              style={{
-                padding: "10px 20px", borderRadius: 10, border: "none",
-                background: "linear-gradient(135deg, #2563EB, #1D4ED8)",
-                color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
-                boxShadow: "0 2px 8px rgba(37,99,235,0.3)",
-                transition: "all 0.15s",
-              }}
-              onMouseOver={(e) => e.currentTarget.style.boxShadow = "0 4px 14px rgba(37,99,235,0.4)"}
-              onMouseOut={(e) => e.currentTarget.style.boxShadow = "0 2px 8px rgba(37,99,235,0.3)"}
-            >
-              <Plus size={16} /> Nouvelle réservation
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <SoldeCaisse token={token!} />
+              <button onClick={() => router.push("/receptionist/book")}
+                style={{
+                  padding: "10px 20px", borderRadius: 10, border: "none",
+                  background: "linear-gradient(135deg, #2563EB, #1D4ED8)",
+                  color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+                  boxShadow: "0 2px 8px rgba(37,99,235,0.3)",
+                  transition: "all 0.15s",
+                }}
+                onMouseOver={(e) => e.currentTarget.style.boxShadow = "0 4px 14px rgba(37,99,235,0.4)"}
+                onMouseOut={(e) => e.currentTarget.style.boxShadow = "0 2px 8px rgba(37,99,235,0.3)"}
+              >
+                <Plus size={16} /> Nouvelle réservation
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -35,21 +35,21 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
 
   return (
     <div style={{
-      width: "297mm", minHeight: "210mm", padding: "8mm 10mm",
+      width: "297mm", minHeight: "210mm", padding: "10mm 12mm",
       fontFamily: "Arial, sans-serif", color: "#000", background: "#fff",
-      position: "relative", fontSize: "9pt",
+      position: "relative", fontSize: "11pt",
     }}>
       <div style={{ position: "absolute", left: "50%", top: 0, height: "100%", borderLeft: "1px dashed #bbb" }} />
 
       <div style={{ display: "flex", height: "100%" }}>
         {/* Left half */}
         <div style={{ width: "50%", paddingRight: "7mm", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", gap: 6, marginBottom: 6, borderBottom: "1px solid #333", paddingBottom: 5 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 8, borderBottom: "1px solid #333", paddingBottom: 6 }}>
             <img src={data.hotel?.logoUrl || "/CHEVALBLANC.png"} alt="Logo"
-              style={{ width: "auto" as const, height: 30, objectFit: "contain" as const }}
+              style={{ width: "auto" as const, height: 40, objectFit: "contain" as const }}
               onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            <div style={{ fontSize: "6pt", lineHeight: 1.3, color: "#222", flex: 1 }}>
-              <div style={{ fontSize: "8pt", fontWeight: "bold" }}>{data.hotel?.name || "Le Cheval Blanc"}</div>
+            <div style={{ fontSize: "8pt", lineHeight: 1.4, color: "#222", flex: 1 }}>
+              <div style={{ fontSize: "11pt", fontWeight: "bold" }}>{data.hotel?.name || "Le Cheval Blanc"}</div>
               {data.hotel?.address && <div>{data.hotel.address}</div>}
               {data.hotel?.phone && <div>Tél: {data.hotel.phone}</div>}
               {data.hotel?.whatsapp && <div>WhatsApp: {data.hotel.whatsapp}</div>}
@@ -57,15 +57,15 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
             </div>
           </div>
 
-          <div style={{ textAlign: "center", marginBottom: 6 }}>
-            <h1 style={{ fontSize: "10pt", fontWeight: "bold", letterSpacing: 1, margin: "0 0 2px", display: "inline-block", borderBottom: "1.5px solid #000", paddingBottom: 1 }}>
+          <div style={{ textAlign: "center", marginBottom: 8 }}>
+            <h1 style={{ fontSize: "14pt", fontWeight: "bold", letterSpacing: 1, margin: "0 0 4px", display: "inline-block", borderBottom: "2px solid #000", paddingBottom: 2 }}>
               FICHE DE VOYAGEUR
             </h1>
-            <div style={{ fontSize: "7pt", fontWeight: "bold", marginTop: 2 }}>
-              CHAMBRE N° / Room No : <span style={{ borderBottom: "1.5px solid #000", padding: "0 12px" }}>{roomStr}</span>
+            <div style={{ fontSize: "10pt", fontWeight: "bold", marginTop: 3 }}>
+              CHAMBRE N° / Room No : <span style={{ borderBottom: "1.5px solid #000", padding: "0 16px" }}>{roomStr}</span>
             </div>
             {data.relationLabel && (
-              <div style={{ fontSize: "6.5pt", marginTop: 1, color: "#555" }}>
+              <div style={{ fontSize: "9pt", marginTop: 2, color: "#555" }}>
                 {data.relationLabel}
               </div>
             )}
@@ -86,97 +86,97 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
         {/* Right half */}
         <div style={{ width: "50%", paddingLeft: "7mm", display: "flex", flexDirection: "column" }}>
           {data.childrenUnder15 !== undefined && (
-            <div style={{ fontSize: "6.5pt", fontWeight: "bold", lineHeight: 1.2, marginBottom: 5, border: "1px solid #ccc", padding: "3px 5px", borderRadius: 2 }}>
+            <div style={{ fontSize: "9pt", fontWeight: "bold", lineHeight: 1.3, marginBottom: 6, border: "1px solid #ccc", padding: "5px 8px", borderRadius: 3 }}>
               <div style={{ direction: "rtl", textAlign: "right" }}>عدد الأطفال أقل من 15 سنة</div>
-              Enfants &lt; 15 ans : <span style={{ borderBottom: "1px solid #000", padding: "0 12px" }}>{data.childrenUnder15}</span>
-              <div style={{ fontWeight: "normal", fontSize: "5.5pt", color: "#444" }}>Accompanying children under 15</div>
+              Enfants &lt; 15 ans : <span style={{ borderBottom: "1px solid #000", padding: "0 16px" }}>{data.childrenUnder15}</span>
+              <div style={{ fontWeight: "normal", fontSize: "8pt", color: "#444" }}>Accompanying children under 15</div>
             </div>
           )}
 
-          <div style={{ textAlign: "center", fontSize: "7.5pt", fontWeight: "bold", letterSpacing: 0.3, marginBottom: 4 }}>
+          <div style={{ textAlign: "center", fontSize: "10pt", fontWeight: "bold", letterSpacing: 0.5, marginBottom: 6 }}>
             PIÈCE D&apos;IDENTITÉ PRODUITE
           </div>
 
-          <div style={{ border: "1.5px solid #000", padding: 6, background: "#fff", marginBottom: 6 }}>
-            <div style={{ textAlign: "center", fontSize: "8pt", fontWeight: "bold", marginBottom: 1, direction: "rtl" }}>
+          <div style={{ border: "2px solid #000", padding: 8, background: "#fff", marginBottom: 8 }}>
+            <div style={{ textAlign: "center", fontSize: "11pt", fontWeight: "bold", marginBottom: 2, direction: "rtl" }}>
               بطاقة التعريف أو جواز السفر
             </div>
-            <div style={{ textAlign: "center", fontSize: "7pt", fontWeight: "bold", margin: "0 0 6px" }}>
-              Carte d&apos;Identité ou Passeport / <span style={{ fontWeight: "normal", fontSize: "6pt", color: "#444" }}>Certificate of identity or passport</span>
+            <div style={{ textAlign: "center", fontSize: "9pt", fontWeight: "bold", margin: "0 0 8px" }}>
+              Carte d&apos;Identité ou Passeport / <span style={{ fontWeight: "normal", fontSize: "8pt", color: "#444" }}>Certificate of identity or passport</span>
             </div>
 
-            <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 6 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 2 }}>
-                  <span style={{ fontSize: "7pt", fontWeight: "bold", direction: "rtl" }}>رقم</span>
-                  <span style={{ fontSize: "6.5pt", fontWeight: "bold" }}>N° :</span>
-                  <div style={{ borderBottom: "1px solid #000", height: 14, flex: 1, paddingLeft: 2, fontSize: "6.5pt", lineHeight: "14px" }}>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
+                  <span style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>رقم</span>
+                  <span style={{ fontSize: "9pt", fontWeight: "bold" }}>N° :</span>
+                  <div style={{ borderBottom: "1.5px solid #000", height: 20, flex: 1, paddingLeft: 4, fontSize: "9pt", lineHeight: "20px" }}>
                     {g?.idDocument || ""}
                   </div>
                 </div>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 2 }}>
-                  <span style={{ fontSize: "7pt", fontWeight: "bold", direction: "rtl" }}>سلم بتاريخ</span>
-                  <span style={{ fontSize: "6.5pt", fontWeight: "bold" }}>Délivré le :</span>
-                  <div style={{ borderBottom: "1px solid #000", height: 14, flex: 1, paddingLeft: 2, fontSize: "6.5pt", lineHeight: "14px" }}>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
+                  <span style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>سلم بتاريخ</span>
+                  <span style={{ fontSize: "9pt", fontWeight: "bold" }}>Délivré le :</span>
+                  <div style={{ borderBottom: "1.5px solid #000", height: 20, flex: 1, paddingLeft: 4, fontSize: "9pt", lineHeight: "20px" }}>
                     {g?.idDeliveryDate || ""}
                   </div>
                 </div>
-                <div style={{ fontSize: "5.5pt", margin: "1px 0 0", textAlign: "center", width: "100%" }}>Issued on</div>
+                <div style={{ fontSize: "7pt", margin: "2px 0 0", textAlign: "center", width: "100%" }}>Issued on</div>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 6 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 2 }}>
-                  <span style={{ fontSize: "7pt", fontWeight: "bold", direction: "rtl" }}>في</span>
-                  <span style={{ fontSize: "6.5pt", fontWeight: "bold" }}>A :</span>
-                  <div style={{ borderBottom: "1px solid #000", height: 14, flex: 1, paddingLeft: 2, fontSize: "6.5pt", lineHeight: "14px" }}>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
+                  <span style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>في</span>
+                  <span style={{ fontSize: "9pt", fontWeight: "bold" }}>A :</span>
+                  <div style={{ borderBottom: "1.5px solid #000", height: 20, flex: 1, paddingLeft: 4, fontSize: "9pt", lineHeight: "20px" }}>
                     {g?.idDeliveryPlace || ""}
                   </div>
                 </div>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 2 }}>
-                  <span style={{ fontSize: "7pt", fontWeight: "bold", direction: "rtl" }}>من</span>
-                  <span style={{ fontSize: "6.5pt", fontWeight: "bold" }}>Par :</span>
-                  <div style={{ borderBottom: "1px solid #000", height: 14, flex: 1, paddingLeft: 2, fontSize: "6.5pt", lineHeight: "14px" }}>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
+                  <span style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>من</span>
+                  <span style={{ fontSize: "9pt", fontWeight: "bold" }}>Par :</span>
+                  <div style={{ borderBottom: "1.5px solid #000", height: 20, flex: 1, paddingLeft: 4, fontSize: "9pt", lineHeight: "20px" }}>
                     {g?.idAuthority || ""}
                   </div>
                 </div>
-                <div style={{ fontSize: "5.5pt", margin: "1px 0 0", textAlign: "center", width: "100%" }}>By</div>
+                <div style={{ fontSize: "7pt", margin: "2px 0 0", textAlign: "center", width: "100%" }}>By</div>
               </div>
             </div>
 
-            <div style={{ marginTop: 6, textAlign: "center" }}>
-              <div style={{ fontSize: "7.5pt", fontWeight: "bold", direction: "rtl", marginBottom: 1 }}>تاريخ الدخول إلى الجزائر</div>
-              <div style={{ fontSize: "6.5pt", fontWeight: "bold" }}>
-                Date d&apos;entrée en Algérie : <span style={{ borderBottom: "1px solid #000", padding: "0 8px" }}>{data.checkIn}</span>
+            <div style={{ marginTop: 8, textAlign: "center" }}>
+              <div style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl", marginBottom: 2 }}>تاريخ الدخول إلى الجزائر</div>
+              <div style={{ fontSize: "9pt", fontWeight: "bold" }}>
+                Date d&apos;entrée en Algérie : <span style={{ borderBottom: "1.5px solid #000", padding: "0 12px" }}>{data.checkIn}</span>
               </div>
-              <div style={{ fontSize: "5.5pt", marginTop: 1 }}>Date of arrival in Algeria</div>
+              <div style={{ fontSize: "7pt", marginTop: 2 }}>Date of arrival in Algeria</div>
             </div>
 
             {data.acte && (
-              <div style={{ marginTop: 4, textAlign: "center" }}>
-                <div style={{ fontSize: "7pt", fontWeight: "bold", direction: "rtl", marginBottom: 1 }}>رقم عقد الزواج</div>
-                <div style={{ fontSize: "6.5pt", fontWeight: "bold" }}>
-                  N° Acte de Mariage : <span style={{ borderBottom: "1px solid #000", padding: "0 8px" }}>{data.acte}</span>
+              <div style={{ marginTop: 6, textAlign: "center" }}>
+                <div style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl", marginBottom: 2 }}>رقم عقد الزواج</div>
+                <div style={{ fontSize: "9pt", fontWeight: "bold" }}>
+                  N° Acte de Mariage : <span style={{ borderBottom: "1.5px solid #000", padding: "0 12px" }}>{data.acte}</span>
                 </div>
               </div>
             )}
           </div>
 
           <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div style={{ fontSize: "6.5pt", fontWeight: "bold", width: "50%" }}>
+            <div style={{ fontSize: "9pt", fontWeight: "bold", width: "50%" }}>
               Fait à Oran, le : {today}
             </div>
             <div style={{ width: "45%", display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "6.5pt", fontWeight: "bold" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9pt", fontWeight: "bold" }}>
                 <span>Signature,</span>
                 <span style={{ direction: "rtl" }}>الإمضاء</span>
               </div>
-              <div style={{ height: 30 }} />
+              <div style={{ height: 40 }} />
             </div>
           </div>
         </div>
@@ -187,14 +187,14 @@ export function FicheVoyageur({ data }: { data: FicheData }) {
 
 function Field({ label, ar, sub, value }: { label: string; ar: string; sub?: string; value?: string | null }) {
   return (
-    <div style={{ marginBottom: 4, width: "100%" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 0 }}>
-        <div style={{ fontSize: "6.5pt", fontWeight: "bold" }}>
-          {label} : {sub && <span style={{ fontWeight: "normal", fontSize: "5.5pt" }}>({sub})</span>}
+    <div style={{ marginBottom: 6, width: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 1 }}>
+        <div style={{ fontSize: "9pt", fontWeight: "bold" }}>
+          {label} : {sub && <span style={{ fontWeight: "normal", fontSize: "8pt" }}>({sub})</span>}
         </div>
-        <div style={{ fontSize: "7.5pt", fontWeight: "bold", direction: "rtl" }}>{ar} :</div>
+        <div style={{ fontSize: "10pt", fontWeight: "bold", direction: "rtl" }}>{ar} :</div>
       </div>
-      <div style={{ borderBottom: "1px solid #000", height: 13, width: "100%", paddingLeft: value ? 2 : 0, fontSize: "6.5pt", lineHeight: "13px" }}>
+      <div style={{ borderBottom: "1.5px solid #000", height: 18, width: "100%", paddingLeft: value ? 4 : 0, fontSize: "9pt", lineHeight: "18px" }}>
         {value || ""}
       </div>
     </div>

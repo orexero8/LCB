@@ -103,6 +103,7 @@ model Room {
   floor         Floor      @relation(fields: [floorId], references: [id])
   roomType      RoomType?  @relation(fields: [roomTypeId], references: [id])
   bookingRooms  BookingRoom[]
+  preReservations PreReservation[]
   checkoutAlerts CheckoutAlert[]
 
   @@map("rooms")
@@ -222,6 +223,21 @@ model ChildAge {
   booking         Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@map("children_ages")
+}
+
+model PreReservation {
+  id        String   @id @default(cuid())
+  guestName String   @map("guest_name")
+  phone     String
+  roomId    String   @map("room_id") @db.Uuid
+  checkIn   DateTime @map("check_in")
+  checkOut  DateTime @map("check_out")
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  room Room @relation(fields: [roomId], references: [id])
+
+  @@map("pre_reservations")
 }
 
 model Cancellation {

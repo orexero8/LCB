@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { BedSingle, BedDouble, Crown, X } from "lucide-react";
+import { BedSingle, BedDouble, Crown, X, Lock } from "lucide-react";
 
 interface RoomDetail {
   id: string;
@@ -69,6 +69,8 @@ export function DetailPanel({
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelText, setCancelText] = useState("");
+  const [showBlockConfirm, setShowBlockConfirm] = useState(false);
+  const [blockReason, setBlockReason] = useState("");
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,6 +116,37 @@ export function DetailPanel({
       if (!res.ok) throw new Error("Erreur");
       const data = await res.json();
       setVoucherData(data.voucher); setShowVoucher(true);
+    } catch (e: any) { setError(e.message); }
+    finally { setIsProcessing(false); }
+  }
+
+  async function handleBlock() {
+    if (!blockReason) return;
+    setIsProcessing(true); setError(null);
+    try {
+      const res = await fetch(`/api/rooms/${room.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "BLOCKED", notes: `Bloqué: ${blockReason}` }),
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Erreur"); }
+      toast.success(`Chambre ${room.roomNumber} bloquée`);
+      setShowBlockConfirm(false); setBlockReason(""); onAction();
+    } catch (e: any) { setError(e.message); }
+    finally { setIsProcessing(false); }
+  }
+
+  async function handleUnblock() {
+    setIsProcessing(true); setError(null);
+    try {
+      const res = await fetch(`/api/rooms/${room.id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "AVAILABLE", notes: "" }),
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Erreur"); }
+      toast.success(`Chambre ${room.roomNumber} débloquée`);
+      onAction();
     } catch (e: any) { setError(e.message); }
     finally { setIsProcessing(false); }
   }
@@ -213,6 +246,16 @@ export function DetailPanel({
           {room.status === "AVAILABLE" && (
             <ActionBtn primary onClick={() => router.push(`/receptionist/book?roomId=${room.id}`)}>Réserver</ActionBtn>
           )}
+          {room.status === "AVAILABLE" && role !== "ADMIN" && (
+            <ActionBtn outline onClick={() => { setShowBlockConfirm(true); setBlockReason(""); }}>
+              <Lock size={14} /> Bloquer
+            </ActionBtn>
+          )}
+          {room.status === "BLOCKED" && (
+            <ActionBtn onClick={handleUnblock} disabled={isProcessing}>
+              {isProcessing ? "..." : "Débloquer"}
+            </ActionBtn>
+          )}
           {(room.status === "OCCUPIED" || room.status === "RESERVED") && room.currentBooking && (
             <ActionBtn onClick={() => setShowCheckoutConfirm(true)} disabled={isProcessing}>
               {isProcessing ? "En cours..." : "Libérer"}
@@ -276,6 +319,39 @@ export function DetailPanel({
                 <ActionBtnCancel onClick={() => setShowCancelConfirm(false)} disabled={isProcessing}>Retour</ActionBtnCancel>
                 <ActionBtnDestructive onClick={handleCancel} disabled={isProcessing || !cancelReason || !cancelText}>
                   {isProcessing ? "Annulation..." : "Confirmer l'annulation"}
+                </ActionBtnDestructive>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showBlockConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center" style={{ background: "rgba(15,23,42,0.5)" }}>
+          <div style={{ background: "white", borderRadius: 16, padding: 28, width: 380, boxShadow: "0 32px 64px rgba(0,0,0,0.2)" }}>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1E293B", marginBottom: 4 }}>Bloquer la chambre {room.roomNumber}</h3>
+            <p style={{ fontSize: 14, color: "#64748B", marginBottom: 16 }}>Raison du blocage</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#1E293B", marginBottom: 6 }}>Motif</label>
+                <select value={blockReason} onChange={(e) => setBlockReason(e.target.value)}
+                  style={{
+                    width: "100%", padding: "10px 14px", fontSize: 15, border: "2px solid #E2E8F0",
+                    borderRadius: 10, color: "#1E293B", outline: "none", background: "white",
+                  }}>
+                  <option value="">Choisir un motif</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Réparation">Réparation</option>
+                  <option value="Nettoyage">Nettoyage profond</option>
+                  <option value="VIP">Réservé VIP</option>
+                  <option value="Other">Autre</option>
+                </select>
+              </div>
+              {error && <p style={{ fontSize: 13, color: "#EF4444" }}>{error}</p>}
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 4 }}>
+                <ActionBtnCancel onClick={() => { setShowBlockConfirm(false); setBlockReason(""); }} disabled={isProcessing}>Retour</ActionBtnCancel>
+                <ActionBtnDestructive onClick={handleBlock} disabled={isProcessing || !blockReason}>
+                  {isProcessing ? "Blocage..." : "Confirmer le blocage"}
                 </ActionBtnDestructive>
               </div>
             </div>
