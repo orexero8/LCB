@@ -356,6 +356,9 @@ model HotelSetting {
   cancellationPolicy String?  @map("cancellation_policy")
   footerMessage      String?  @map("footer_message")
   currencySymbol     String   @default("DA") @map("currency_symbol")
+  rc                 String?  @map("rc")
+  nif                String?  @map("nif")
+  nis                String?  @map("nis")
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 

@@ -606,6 +606,21 @@ export default function HistoryPage() {
                     }}>
                     <Printer size={15} /> Reçu PDF
                   </button>
+                  <button onClick={async () => {
+                    const res = await fetch(`/api/bookings/${selectedBooking.id}/invoice`, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (!res.ok) return;
+                    const blob = await res.blob();
+                    window.open(URL.createObjectURL(blob), "_blank");
+                  }}
+                    style={{
+                      padding: "10px 20px", borderRadius: 10, border: "2px solid #1e40af",
+                      background: "#EFF6FF", color: "#1e40af", fontSize: 13, fontWeight: 700,
+                      cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+                    }}>
+                    <Printer size={15} /> Facture
+                  </button>
                   <button onClick={() => setEditMode(true)}
                     style={{ padding: "10px 20px", borderRadius: 10, border: "2px solid #D4A853", background: "#FFFBEB", color: "#92400E", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
                     <Edit3 size={15} /> Modifier

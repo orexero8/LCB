@@ -299,6 +299,9 @@ CREATE TABLE "hotel_settings" (
     "cancellation_policy" TEXT,
     "footer_message" TEXT,
     "currency_symbol" TEXT NOT NULL DEFAULT 'DA',
+    "rc" TEXT,
+    "nif" TEXT,
+    "nis" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 

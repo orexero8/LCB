@@ -23,7 +23,7 @@ for (const u of users) {
 }
 
 // Hotel settings
-await client.query(`INSERT INTO hotel_settings (id, hotel_name, logo_url, check_in_time, check_out_time, currency_symbol, created_at, updated_at) VALUES ('default', 'Le Cheval Blanc', '/CHEVALBLANC.png', '14:00', '12:00', 'DA', $1, $1) ON CONFLICT (id) DO NOTHING`, [now]);
+  await client.query(`INSERT INTO hotel_settings (id, hotel_name, logo_url, check_in_time, check_out_time, currency_symbol, rc, nif, nis, created_at, updated_at) VALUES ('default', 'Le Cheval Blanc', '/CHEVALBLANC.png', '14:00', '12:00', 'DA', '31/02-1747753A12', '1790720001971110000', '197907200019729', $1, $1) ON CONFLICT (id) DO NOTHING`, [now]);
 
 // Room types
 const roomTypeDefs = [
