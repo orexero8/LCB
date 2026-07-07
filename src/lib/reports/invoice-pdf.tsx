@@ -226,7 +226,7 @@ export function InvoicePdf({ data }: { data: InvoiceData }) {
             <Text style={styles.summaryValue}>{data.taxeSejour.toLocaleString()} {ccy}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Droit 1% (hors taxe de séjour)</Text>
+            <Text style={styles.summaryLabel}>D. Timbre</Text>
             <Text style={styles.summaryValue}>{data.droitMille.toLocaleString()} {ccy}</Text>
           </View>
           <View style={styles.summaryRow}>
