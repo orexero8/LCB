@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   logo: { width: 120, height: 120, objectFit: "contain" },
   oranText: { fontSize: 10, marginTop: 4 },
   infoBlock: { alignItems: "center", marginBottom: 16 },
-  hotelName: { fontSize: 13, fontWeight: "bold", marginBottom: 2 },
+  hotelName: { fontSize: 16, fontWeight: "bold", marginBottom: 2 },
   hotelLine: { fontSize: 8, lineHeight: 1.5 },
   taxLine: { fontSize: 8, lineHeight: 1.4, marginTop: 4 },
   titleBlock: { textAlign: "center", marginBottom: 16 },
@@ -159,7 +159,7 @@ export function InvoicePdf({ data }: { data: InvoiceData }) {
         </View>
 
         <View style={styles.infoBlock}>
-          <Text style={styles.hotelName}>{data.hotel?.name || "LE CHEVAL BLANC"}</Text>
+          <Text style={styles.hotelName}>{(data.hotel?.name || "Le Cheval Blanc").toUpperCase()}</Text>
           {data.hotel?.address && <Text style={styles.hotelLine}>{data.hotel.address}</Text>}
           <Text style={styles.hotelLine}>Tél: {data.hotel?.phone || ""}</Text>
           <View style={styles.taxLine}>
