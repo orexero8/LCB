@@ -159,7 +159,7 @@ export function InvoicePdf({ data }: { data: InvoiceData }) {
         </View>
 
         <View style={styles.infoBlock}>
-          <Text style={styles.hotelName}>{data.hotel?.name || "Le Cheval Blanc"}</Text>
+          <Text style={styles.hotelName}>{data.hotel?.name || "LE CHEVAL BLANC"}</Text>
           {data.hotel?.address && <Text style={styles.hotelLine}>{data.hotel.address}</Text>}
           <Text style={styles.hotelLine}>Tél: {data.hotel?.phone || ""}</Text>
           <View style={styles.taxLine}>
@@ -252,7 +252,7 @@ export function InvoicePdf({ data }: { data: InvoiceData }) {
         </View>
 
         <Text style={styles.wordsBlock}>
-          Arrêtée la présente facture à la somme de : {"\n"}
+          Arrêter la présente facture à la somme de : {"\n"}
           {numberToFrench(Math.round(data.totalTTC))} Dinars Algériens
         </Text>
       </Page>
