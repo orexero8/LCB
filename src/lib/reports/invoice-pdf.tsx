@@ -40,11 +40,8 @@ interface InvoiceData {
 
 const styles = StyleSheet.create({
   page: { padding: 30, fontFamily: "Helvetica", fontSize: 9, color: "#000" },
-  topRow: { flexDirection: "row", marginBottom: 20 },
-  logoCol: { width: "50%", alignItems: "center", justifyContent: "center" },
-  annCol: { width: "50%", alignItems: "flex-end", justifyContent: "center" },
+  logoRow: { alignItems: "center", marginBottom: 20 },
   logo: { width: 120, height: 120, objectFit: "contain" },
-  annText: { fontSize: 14, fontWeight: "bold" },
   oranText: { fontSize: 10, marginTop: 4 },
   infoBlock: { alignItems: "center", marginBottom: 16 },
   hotelName: { fontSize: 13, fontWeight: "bold", marginBottom: 2 },
@@ -149,7 +146,6 @@ function numberToFrench(n: number): string {
 export function InvoicePdf({ data }: { data: InvoiceData }) {
   const ccy = data.hotel?.currencySymbol || "DA";
   const createdDate = new Date(data.createdAt);
-  const year = createdDate.getFullYear();
   const dateStr = createdDate.toLocaleDateString("fr-FR", {
     day: "2-digit", month: "long", year: "numeric",
   });
@@ -157,14 +153,9 @@ export function InvoicePdf({ data }: { data: InvoiceData }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.topRow}>
-          <View style={styles.logoCol}>
-            {data.hotel?.logoUrl && <Image src={data.hotel.logoUrl} style={styles.logo} />}
-          </View>
-          <View style={styles.annCol}>
-            <Text style={styles.annText}>ANN {year}</Text>
-            <Text style={styles.oranText}>ORAN, le {dateStr}</Text>
-          </View>
+        <View style={styles.logoRow}>
+          {data.hotel?.logoUrl && <Image src={data.hotel.logoUrl} style={styles.logo} />}
+          <Text style={styles.oranText}>ORAN, le {dateStr}</Text>
         </View>
 
         <View style={styles.infoBlock}>
