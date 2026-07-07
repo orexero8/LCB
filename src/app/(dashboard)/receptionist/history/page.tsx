@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Calendar, BedDouble, User, Search, X, Printer, Users, Edit3, Save } from "lucide-react";
 import { FicheVoyageur } from "@/components/fiche/fiche-voyageur";
 import type { FicheData, GuestInfo } from "@/components/fiche/fiche-voyageur";
+import { Toaster } from "@/components/ui/sonner";
 
 interface BookingRow {
   id: string;
@@ -691,6 +692,7 @@ export default function HistoryPage() {
           </div>
         </>
       )}
+      <Toaster />
     </div>
   );
 }
