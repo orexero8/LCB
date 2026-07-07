@@ -30,7 +30,8 @@ export async function GET(
       bookingRooms: {
         include: { room: { include: { floor: true, roomType: true } } },
       },
-      bookingGuests: { include: { client: true }, where: { isPrimary: true }, take: 1 },
+      bookingGuests: { include: { client: true } },
+      childrenAges: true,
       partner: true,
       receptionist: true,
     },
@@ -40,7 +41,7 @@ export async function GET(
     return Response.json({ error: "Booking not found" }, { status: 404 });
   }
 
-  const guest = booking.bookingGuests[0]?.client;
+  const adultCount = booking.bookingGuests.length;
   let settings = null;
   try { await ensureSettingsColumns(); settings = await prisma.hotelSetting.findUnique({ where: { id: "default" } }); } catch { /* ignore */ }
 
@@ -48,18 +49,23 @@ export async function GET(
     (booking.checkOut.getTime() - booking.checkIn.getTime()) / (1000 * 60 * 60 * 24)
   );
 
+  const roomSubtotal = booking.bookingRooms.reduce(
+    (sum, br) => sum + Number(br.priceAtBooking) * nights,
+    0
+  );
+  const taxeSejour = 100 * adultCount * nights;
+  const baseDroit = roomSubtotal + Number(booking.childrenCharge) - Number(booking.discountAmount);
+  const droitMille = Math.round(baseDroit * 0.01 * 100) / 100;
+  const totalTTC = roomSubtotal + taxeSejour + droitMille + Number(booking.childrenCharge) - Number(booking.discountAmount);
+
   const logoDataUri = readLogoBase64();
 
   const invoiceData = {
     bookingRef: booking.bookingRef,
-    guestName: [guest?.nom, guest?.prenom].filter(Boolean).join(" ") || "N/A",
-    guestPhone: guest?.phone || "",
-    guestAddress: guest?.address || "",
-    guestWilaya: guest?.wilaya || "",
-    guestIdDocument: guest?.idDocument || "",
     checkIn: booking.checkIn.toISOString().split("T")[0],
     checkOut: booking.checkOut.toISOString().split("T")[0],
     nights,
+    adultCount,
     rooms: booking.bookingRooms.map((br) => ({
       roomNumber: br.room.roomNumber,
       floor: br.room.floor.name,
@@ -68,9 +74,13 @@ export async function GET(
       priceAtBooking: Number(br.priceAtBooking),
     })),
     childrenCharge: Number(booking.childrenCharge),
-    totalAmount: Number(booking.totalAmount),
+    childrenAges: booking.childrenAges.map((c) => ({ nom: c.nom, age: c.age })),
     discountAmount: Number(booking.discountAmount),
     discountCode: booking.discountCode,
+    roomSubtotal,
+    taxeSejour,
+    droitMille,
+    totalTTC,
     paymentMethod: booking.paymentMethod,
     partner: booking.partner
       ? { name: booking.partner.name, contactPhone: booking.partner.contactPhone }
