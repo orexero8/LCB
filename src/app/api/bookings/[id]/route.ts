@@ -47,7 +47,8 @@ export async function GET(
     isPrimary: g.isPrimary,
   }));
 
-  const settings = await prisma.hotelSetting.findUnique({ where: { id: "default" } });
+  let settings = null;
+  try { settings = await prisma.hotelSetting.findUnique({ where: { id: "default" } }); } catch { /* ignore schema mismatch */ }
 
   const nights = Math.ceil(
     (booking.checkOut.getTime() - booking.checkIn.getTime()) / (1000 * 60 * 60 * 24)
