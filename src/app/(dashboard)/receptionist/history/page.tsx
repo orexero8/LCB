@@ -162,7 +162,11 @@ export default function HistoryPage() {
       const res = await fetch(`/api/bookings/${bookingId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => "");
+        toast.error(`Erreur ${res.status}: ${errBody || res.statusText}`);
+        return;
+      }
       const data = await res.json();
       setSelectedBooking(data.booking);
       setShowFiche(false);
@@ -179,7 +183,9 @@ export default function HistoryPage() {
         guestIdDeliveryPlace: data.booking.primaryGuest?.idDeliveryPlace || "",
         guestIdAuthority: data.booking.primaryGuest?.idAuthority || "",
       });
-    } catch { /* ignore */ }
+    } catch (e) {
+      toast.error(`Erreur réseau: ${e instanceof Error ? e.message : "inconnue"}`);
+    }
   }
 
   function openFiche(guest: GuestInfo, label: string, childrenUnder15?: number) {
