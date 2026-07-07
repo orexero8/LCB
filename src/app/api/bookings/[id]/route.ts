@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireAnyUser } from "@/lib/api-auth";
+import { ensureSettingsColumns } from "@/lib/ensure-settings-columns";
 
 export async function GET(
   request: Request,
@@ -48,7 +49,7 @@ export async function GET(
   }));
 
   let settings = null;
-  try { settings = await prisma.hotelSetting.findUnique({ where: { id: "default" } }); } catch { /* ignore schema mismatch */ }
+  try { await ensureSettingsColumns(); settings = await prisma.hotelSetting.findUnique({ where: { id: "default" } }); } catch { /* ignore */ }
 
   const nights = Math.ceil(
     (booking.checkOut.getTime() - booking.checkIn.getTime()) / (1000 * 60 * 60 * 24)

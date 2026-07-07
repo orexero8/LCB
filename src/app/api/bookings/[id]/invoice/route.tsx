@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireAnyUser } from "@/lib/api-auth";
+import { ensureSettingsColumns } from "@/lib/ensure-settings-columns";
 import { renderToStream } from "@react-pdf/renderer";
 import { InvoicePdf } from "@/lib/reports/invoice-pdf";
 import { readFileSync } from "fs";
@@ -41,7 +42,7 @@ export async function GET(
 
   const guest = booking.bookingGuests[0]?.client;
   let settings = null;
-  try { settings = await prisma.hotelSetting.findUnique({ where: { id: "default" } }); } catch { /* ignore */ }
+  try { await ensureSettingsColumns(); settings = await prisma.hotelSetting.findUnique({ where: { id: "default" } }); } catch { /* ignore */ }
 
   const nights = Math.ceil(
     (booking.checkOut.getTime() - booking.checkIn.getTime()) / (1000 * 60 * 60 * 24)

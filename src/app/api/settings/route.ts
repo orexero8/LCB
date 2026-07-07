@@ -1,17 +1,15 @@
 import { prisma } from "@/lib/prisma";
+import { ensureSettingsColumns } from "@/lib/ensure-settings-columns";
 
 const DEFAULT_ID = "default";
 
 async function getOrCreate() {
-  try {
-    let settings = await prisma.hotelSetting.findUnique({ where: { id: DEFAULT_ID } });
-    if (!settings) {
-      settings = await prisma.hotelSetting.create({ data: { id: DEFAULT_ID } });
-    }
-    return settings;
-  } catch {
-    return null;
+  await ensureSettingsColumns();
+  let settings = await prisma.hotelSetting.findUnique({ where: { id: DEFAULT_ID } });
+  if (!settings) {
+    settings = await prisma.hotelSetting.create({ data: { id: DEFAULT_ID } });
   }
+  return settings;
 }
 
 export async function GET() {
@@ -30,6 +28,7 @@ export async function PUT(request: Request) {
   for (const key of allowed) {
     if (body[key] !== undefined) data[key] = body[key];
   }
+  await ensureSettingsColumns();
   try {
     const settings = await prisma.hotelSetting.upsert({
       where: { id: DEFAULT_ID },

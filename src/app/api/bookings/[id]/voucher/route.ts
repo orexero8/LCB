@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireAnyUser } from "@/lib/api-auth";
+import { ensureSettingsColumns } from "@/lib/ensure-settings-columns";
 
 export async function GET(
   request: Request,
@@ -46,7 +47,8 @@ export async function GET(
     isPrimary: g.isPrimary,
   }));
 
-  const settings = await prisma.hotelSetting.findUnique({ where: { id: "default" } });
+  let settings = null;
+  try { await ensureSettingsColumns(); settings = await prisma.hotelSetting.findUnique({ where: { id: "default" } }); } catch { /* ignore */ }
 
   return Response.json({
     voucher: {
