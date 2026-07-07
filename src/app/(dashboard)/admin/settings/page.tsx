@@ -19,6 +19,9 @@ interface HotelSettings {
   cancellationPolicy: string;
   footerMessage: string;
   currencySymbol: string;
+  rc: string;
+  nif: string;
+  nis: string;
 }
 
 export default function SettingsPage() {
@@ -61,6 +64,9 @@ export default function SettingsPage() {
     { key: "checkInTime", label: "Check-in Time", placeholder: "14:00" },
     { key: "checkOutTime", label: "Check-out Time", placeholder: "12:00" },
     { key: "currencySymbol", label: "Currency Symbol", placeholder: "DA" },
+    { key: "rc", label: "RC (Registre de Commerce)" },
+    { key: "nif", label: "NIF" },
+    { key: "nis", label: "NIS" },
     { key: "cancellationPolicy", label: "Cancellation Policy" },
     { key: "footerMessage", label: "Receipt Footer Message" },
   ];

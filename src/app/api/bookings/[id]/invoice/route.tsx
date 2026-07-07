@@ -81,14 +81,11 @@ export async function GET(
           name: settings.hotelName,
           address: settings.hotelAddress || "",
           phone: settings.hotelPhone || "",
-          whatsapp: settings.hotelWhatsApp || "",
-          email: settings.hotelEmail || "",
           logoUrl: logoDataUri,
           rc: settings.rc || null,
           nif: settings.nif || null,
           nis: settings.nis || null,
           currencySymbol: settings.currencySymbol || "DA",
-          footerMessage: settings.footerMessage || "",
         }
       : null,
   };
