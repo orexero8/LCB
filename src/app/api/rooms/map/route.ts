@@ -6,26 +6,30 @@ export async function GET(request: Request) {
   if (!auth.authorized) return auth.response;
 
   // Auto-checkout: rooms past checkOut date become AVAILABLE after 12:00 noon
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  const todayLocal = `${y}-${m}-${d}`;
-  const expiredBookings = await prisma.booking.findMany({
-    where: { status: "ACTIVE", checkOut: { lte: todayLocal } },
-    include: { bookingRooms: true },
-  });
-  if (now.getHours() >= 12) {
+  try {
+    const now = new Date();
+    const expiredBookings = await prisma.booking.findMany({
+      where: { status: "ACTIVE", checkOut: { lt: now } },
+      include: { bookingRooms: true },
+    });
     for (const b of expiredBookings) {
-      await prisma.booking.update({
-        where: { id: b.id },
-        data: { status: "CHECKED_OUT" },
-      });
-      await prisma.room.updateMany({
-        where: { id: { in: b.bookingRooms.map((br) => br.roomId) } },
-        data: { status: "AVAILABLE" },
-      });
+      const checkoutNoon = new Date(
+        b.checkOut.getFullYear(), b.checkOut.getMonth(), b.checkOut.getDate(),
+        12, 0, 0, 0
+      );
+      if (now >= checkoutNoon) {
+        await prisma.booking.update({
+          where: { id: b.id },
+          data: { status: "CHECKED_OUT" },
+        });
+        await prisma.room.updateMany({
+          where: { id: { in: b.bookingRooms.map((br) => br.roomId) } },
+          data: { status: "AVAILABLE" },
+        });
+      }
     }
+  } catch (e) {
+    console.error("Auto-checkout error:", e);
   }
 
   const floors = await prisma.floor.findMany({
