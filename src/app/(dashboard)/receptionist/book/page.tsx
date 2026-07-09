@@ -178,6 +178,12 @@ function WizardContent() {
   const searchParams = useSearchParams();
   const preselectedRoomId = searchParams.get("roomId");
   const preReservationId = searchParams.get("preReservationId");
+  const prefillNom = searchParams.get("nom");
+  const prefillPrenom = searchParams.get("prenom");
+  const prefillPhone = searchParams.get("phone");
+  const prefillCheckIn = searchParams.get("checkIn");
+  const prefillCheckOut = searchParams.get("checkOut");
+  const prefillRoomId = searchParams.get("roomId");
 
   const [token, setToken] = useState<string | null>(null);
   const [s, setS] = useState<WizardState>({
@@ -266,28 +272,19 @@ function WizardContent() {
     return () => clearInterval(id);
   }, [token]);
 
-  // Pre-fill form from pre-reservation
+  // Pre-fill form from pre-reservation (data passed via URL params)
   useEffect(() => {
-    if (!token || !preReservationId) return;
-    fetch(`/api/pre-reservations`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => {
-        if (!data) return;
-        const pr = data.preReservations?.find((p: any) => p.id === preReservationId);
-        if (!pr) return;
-        update({
-          clientNom: pr.nom,
-          clientPrenom: pr.prenom,
-          clientPhone: pr.phone,
-          checkIn: pr.checkIn,
-          checkOut: pr.checkOut,
-          selectedRoomIds: [pr.roomId],
-        });
-      })
-      .catch(() => {});
-  }, [token, preReservationId]);
+    if (prefillNom && prefillPrenom) {
+      update({
+        clientNom: prefillNom,
+        clientPrenom: prefillPrenom,
+        clientPhone: prefillPhone || "",
+        ...(prefillCheckIn && { checkIn: prefillCheckIn }),
+        ...(prefillCheckOut && { checkOut: prefillCheckOut }),
+        ...(prefillRoomId && { selectedRoomIds: [prefillRoomId] }),
+      });
+    }
+  }, []);
 
   const update = useCallback((partial: Partial<WizardState>) => {
     setS((prev) => ({ ...prev, ...partial }));

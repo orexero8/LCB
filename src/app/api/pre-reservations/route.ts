@@ -6,6 +6,31 @@ export async function GET(request: Request) {
   if (!auth.authorized) return auth.response;
 
   try {
+    const url = new URL(request.url);
+    const singleId = url.searchParams.get("id");
+
+    if (singleId) {
+      const pr = await prisma.preReservation.findUnique({
+        where: { id: singleId },
+        include: { room: { select: { roomNumber: true } } },
+      });
+      if (!pr) return Response.json({ error: "Not found" }, { status: 404 });
+      return Response.json({
+        preReservation: {
+          id: pr.id,
+          nom: pr.nom,
+          prenom: pr.prenom,
+          phone: pr.phone,
+          roomId: pr.roomId,
+          roomNumber: pr.room.roomNumber,
+          checkIn: pr.checkIn.toISOString().split("T")[0],
+          checkOut: pr.checkOut.toISOString().split("T")[0],
+          notes: pr.notes,
+          createdAt: pr.createdAt.toISOString(),
+        },
+      });
+    }
+
     const preReservations = await prisma.preReservation.findMany({
       where: { converted: false, bookingId: null },
       include: {

@@ -260,7 +260,19 @@ export function PreReservationBadge({ token }: { token: string }) {
                     </div>
                   )}
                   <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-                    <button onClick={() => { router.push(`/receptionist/book?preReservationId=${pr.id}`); setOpen(false); }}
+                    <button onClick={() => {
+                        const params = new URLSearchParams({
+                          preReservationId: pr.id,
+                          nom: pr.nom,
+                          prenom: pr.prenom,
+                          phone: pr.phone,
+                          checkIn: pr.checkIn,
+                          checkOut: pr.checkOut,
+                          roomId: pr.roomId,
+                        });
+                        router.push(`/receptionist/book?${params.toString()}`);
+                        setOpen(false);
+                      }}
                       style={{
                         padding: "4px 12px", borderRadius: 6, border: "1px solid #D4A853",
                         background: "#FFFBEB", fontSize: 11, fontWeight: 600,
