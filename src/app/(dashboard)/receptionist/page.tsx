@@ -9,6 +9,7 @@ import { PreReservationBadge } from "@/components/shift/pre-reservation-badge";
 import { SoldeCaisse } from "@/components/shift/solde-caisse";
 import { OfflineIndicator } from "@/components/pwa/offline-indicator";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { toast } from "sonner";
 import { LogOut, Plus, BedDouble, Calendar, Clock } from "lucide-react";
 
 interface FloorData {
@@ -107,7 +108,12 @@ export default function ReceptionistDashboard() {
       const res = await fetch("/api/rooms/map", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => "");
+        console.error("Room map API error:", res.status, errBody);
+        toast.error("Erreur chargement plan: " + errBody.slice(0, 120));
+        return;
+      }
       const data = await res.json();
       setFloors(data.floors);
       setStats({ totalRooms: data.totalRooms, statusCounts: data.statusCounts });
@@ -118,7 +124,9 @@ export default function ReceptionistDashboard() {
           .find((r: RoomData) => r.id === selectedRoom.id);
         if (updated) setSelectedRoom(updated);
       }
-    } catch { /* ignore */ }
+    } catch (e) {
+      console.error("Room map fetch error:", e);
+    }
   }, [token, selectedRoom?.id]);
 
   useEffect(() => {
